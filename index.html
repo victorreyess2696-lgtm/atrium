@@ -315,6 +315,28 @@ html[data-theme=dark] .bloq{border-color:rgba(255,255,255,.2)}
 .gcard[open] summary{padding-bottom:6px}.gsteps{margin:6px 18px 0 18px;padding-left:22px;font-size:14px;line-height:1.5}.gsteps li{margin:7px 0;padding-left:4px}
 .gtip{margin:10px 18px;padding:10px 12px;border-radius:12px;background:rgba(255,204,0,.14);font-size:13px}.gcard .btn{margin:0 18px 16px}
 @media(max-width:900px){.ggrid{grid-template-columns:1fr}}
+.ej{display:block;margin:4px 2px 12px;font-size:12.5px;line-height:1.4;color:var(--tinta2);font-style:italic}
+.sbg{fill:#e5e5ea}.sfg{fill:#b9b9c1}
+html[data-theme=dark] .sbg{fill:#2a2b33}html[data-theme=dark] .sfg{fill:#5d5e6b}
+.fotoSel{display:flex;flex-direction:column;align-items:center;gap:6px;margin:4px 0 14px}
+.fotoAv,.avBig{position:relative;display:block;width:96px;height:96px;border-radius:50%;cursor:pointer;flex:none;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.fotoAv svg,.avBig svg,.fotoAv img,.avBig img{width:100%;height:100%;display:block;border-radius:50%;object-fit:cover}
+.fotoAv .plus,.avBig .plus{position:absolute;right:-2px;bottom:2px;width:30px;height:30px;border-radius:50%;background:linear-gradient(180deg,#4a9bff,#0a7aff);color:#fff;font-size:22px;font-weight:500;line-height:27px;text-align:center;border:2px solid #fff;box-shadow:0 2px 8px rgba(10,122,255,.45)}
+.avBig{width:58px;height:58px}.avBig .plus{width:22px;height:22px;font-size:16px;line-height:19px;border-width:1.5px;right:-4px;bottom:-2px}
+.linkbtn{font-size:12.5px;color:var(--azul);background:none;border:0;cursor:pointer;padding:2px 6px}
+.paper.asis{max-width:840px;font-family:var(--sans);padding:30px 34px;color:#2a2a2e}
+.asis .ah{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}
+.asis .alogo{display:flex;flex-direction:column;align-items:flex-start;gap:4px}.asis .alogo img{width:76px;height:76px;border-radius:50%}.asis .alogo small{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#7a7a80}
+.asis .ah h2{font-size:24px;font-weight:600;text-align:right;color:#3a3a3e;margin:6px 0 2px}.asis .ah div:last-child small{display:block;text-align:right;color:#7a7a80;font-size:12.5px}
+.asis .info{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:6px}.asis .info td{border:1px solid #cdbfae;padding:9px 11px;width:50%}
+.asis .sum{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;margin:14px 4px}
+.asis .reg{width:100%;border-collapse:collapse;font-size:12.5px}.asis .reg th{background:#f4eee6;border:1px solid #cdbfae;padding:7px 8px;font-weight:600}
+.asis .reg td{border:1px solid #cdbfae;padding:4px 8px;height:27px;vertical-align:middle}.asis .reg td.n{text-align:center;width:34px}
+.asis .reg td.nt{min-width:170px;font-size:12px}.asis .reg td.nt:focus{outline:2px solid rgba(10,122,255,.35);background:#fffdf8}
+.asis .reg thead{display:table-header-group}.asis .reg tr{page-break-inside:avoid}
+@media(max-width:900px){.paper.asis{padding:18px 12px;overflow-x:auto}.asis .reg{font-size:11px;min-width:520px}.asis .ah h2{font-size:18px}}
+@page{size:Letter;margin:12mm}
+@media print{.paper.asis,.apl .paper.asis{padding:0!important;max-width:none!important;width:100%!important;box-sizing:border-box;box-shadow:none!important;overflow:visible!important}.asis .reg,.asis .info{width:100%!important;table-layout:fixed}.asis .reg td.nt{min-width:0!important}.asis .reg th:nth-child(1),.asis .reg td.n{width:30px}.asis .reg th:nth-child(2){width:96px}.asis .reg th:nth-child(3){width:64px}.asis .reg th:nth-child(4){width:64px}.asis .reg th:nth-child(5){width:70px}.asis .reg td.nt:focus{outline:none;background:none}.apl-in{max-width:none!important;width:100%!important;padding:0!important}}
 </style>
 </head>
 <body>
@@ -584,7 +606,7 @@ function pruebasTab(p){
  const html=Object.keys(gr).map(id=>{const T=TESTS[id],rs=gr[id],l=rs[rs.length-1];
   return `<div class="eyebrow" style="margin-top:14px">${T.titulo} · ${T.sub}</div>`+(T.bands&&T.bands.length&&!T.multi?chartT(T,rs):'')+
   (T.multi?rs.map(x=>`<div class="note"><div class="d">${x.f}</div><p>${x.det.map(d=>`<b>${d[0]}</b> ${d[1]} (${d[2]})`).join(' · ')}</p></div>`).join(''):`<p class="sub" style="font-size:13px;margin-top:8px">Última: ${l.s} pts · ${l.nivel}. ${T.nota}</p>`)}).join('');
- return (html||'<p class="sub">Aún no hay pruebas aplicadas.</p>')+`<div class="row" style="justify-content:flex-start"><button class="btn sm" onclick="modal('aplicar')">Aplicar prueba</button><button class="btn ghost sm" onclick="window.print()">Imprimir</button></div>`;
+ return (html||'<p class="sub">Aún no hay pruebas aplicadas.</p>')+`<div class="row" style="justify-content:flex-start"><button class="btn sm" onclick="modal('aplicar')">Aplicar prueba</button><button class="btn ghost sm" onclick="imprimirHistoria()">Imprimir</button></div>`;
 }
 function vPru(){
  const cats=['Todas',...new Set(Object.values(TESTS).map(T=>T.cat||'Otras'))];
@@ -668,22 +690,22 @@ function gadChart(v,f){
 }
 function vPac(){
  const q=(window._q||'').toLowerCase();
- const list=PAC.filter(p=>!p.arch&&p.n.toLowerCase().includes(q)).map(p=>`<button class="${pacSel==p.id?'on':''}" onclick="pacSel=${p.id};tab='Resumen';render()">${AV(p)}<span><b>${p.n}</b><small>${p.mot}</small></span></button>`).join('');
+ const list=PAC.filter(p=>(verArch?!!p.arch:!p.arch)&&p.n.toLowerCase().includes(q)).map(p=>`<button class="${pacSel==p.id?'on':''}" onclick="pacSel=${p.id};tab='Resumen';render()">${AV(p)}<span><b>${p.n}</b><small>${p.mot}</small></span></button>`).join('');
  const p=PAC.find(x=>x.id==pacSel);
  let det='<div class="card" style="text-align:center;color:var(--tinta2);padding:60px 20px">Elige un paciente para ver su expediente.</div>';
  if(p){
   let body='';
   if(tab=='Resumen') body=`<dl class="kv"><dt>Teléfono</dt><dd>${p.tel}</dd><dt>Correo</dt><dd>${p.mail}</dd><dt>En terapia desde</dt><dd>${p.desde}</dd><dt>Sesiones</dt><dd>${p.n_ses}</dd><dt>Motivo</dt><dd>${p.mot}</dd><dt>Próxima cita</dt><dd>${p.prox}</dd></dl>
-   <div class="row" style="justify-content:flex-start;margin:16px 0 0">${p.tel?`<button class="btn wa sm" onclick="waPaciente(${p.id})">${IC.wa} WhatsApp</button>`:''}<button class="btn ghost sm" onclick="modal('cita',${p.id})">Agendar cita</button><button class="btn ghost sm" onclick="modal('pac',${p.id})">Editar datos</button><button class="btn ghost sm" onclick="archivar(${p.id})">Archivar</button></div><div class="eyebrow" style="margin-top:22px">Última nota</div>${p.notas[0]?`<div class="note"><div class="d">${p.notas[0][0]}</div><p>${p.notas[0][1]}</p></div>`:'<p class="sub">Sin notas todavía.</p>'}`;
-  if(tab=='Sesiones') body=`<button class="btn sm" onclick="modal('nota')">＋ Nota de sesión</button>${p.notas.map(n=>`<div class="note"><div class="d">${n[0]}</div><p>${n[1]}</p></div>`).join('')}`;
+   <div class="row" style="justify-content:flex-start;margin:16px 0 0">${p.tel?`<button class="btn wa sm" onclick="waPaciente(${p.id})">${IC.wa} WhatsApp</button>`:''}<button class="btn ghost sm" onclick="modal('cita',${p.id})">Agendar cita</button><button class="btn ghost sm" onclick="modal('pac',${p.id})">Editar datos</button>${p.arch?`<button class="btn ghost sm" onclick="desarchivar(${p.id})">Desarchivar</button>`:`<button class="btn ghost sm" onclick="archivar(${p.id})">Archivar</button>`}</div><div class="eyebrow" style="margin-top:22px">Última nota</div>${p.notas[0]?`<div class="note"><div class="d">${p.notas[0][0]}</div><p>${p.notas[0][1]}</p></div>`:'<p class="sub">Sin notas todavía.</p>'}`;
+  if(tab=='Sesiones') body=`<div class="row" style="justify-content:flex-start;margin:0 0 6px"><button class="btn sm" onclick="modal('nota')">＋ Nota de sesión</button><button class="btn ghost sm" onclick="docPac=${p.id};docSel=ASIS_I;go('doc')">Registro de asistencias</button></div>${p.notas.map(n=>`<div class="note"><div class="d">${n[0]}</div><p>${n[1]}</p></div>`).join('')}`;
   if(tab=='Pruebas') body=pruebasTab(p);
   if(tab=='Tareas') body=(p.tareas.length?p.tareas.map((t,i)=>`<div class="item"><span class="leaf ${t[1]?'on':''}" onclick="toggleTarea(${i})" style="cursor:pointer"></span><div class="txt" style="${t[1]?'text-decoration:line-through;opacity:.6':''}">${esc(t[0])}</div></div>`).join(''):'<p class="sub">Sin tareas.</p>')+`<div class="row" style="justify-content:flex-start"><button class="btn sm" onclick="modal('tarea')">＋ Asignar tarea</button><button class="btn ghost sm" onclick="waTareas()">Enviar por WhatsApp</button></div>`;
   if(tab=='Documentos') body=`<div class="docs"><button>${IC.doc}<span><b>Consentimiento informado</b><br><small class="sub">Firmado · 12 mar 2026</small></span></button><button>${IC.doc}<span><b>Constancia de asistencia</b><br><small class="sub">Generada · 02 oct 2026</small></span></button></div><div class="row" style="justify-content:flex-start"><button class="btn sm" onclick="go('doc')">Nuevo documento</button></div>`;
-  det=`<div class="card"><div style="display:flex;align-items:center;gap:14px">${AV(p,"width:54px;height:54px;font-size:22px")}<div style="flex:1"><h2>${p.n}</h2><span class="sub" style="font-size:13px">${p.mot}</span></div><button class="btn ghost sm mob-only" onclick="pacSel=null;render()">‹ Lista</button></div>
+  det=`<div class="card"><div style="display:flex;align-items:center;gap:14px">${avFicha(p)}<div style="flex:1"><h2>${p.n}</h2><span class="sub" style="font-size:13px">${p.mot}</span></div><button class="btn ghost sm mob-only" onclick="pacSel=null;render()">‹ Lista</button></div>
    <div class="tabs">${['Resumen','Sesiones','Pruebas','Tareas','Documentos'].map(t=>`<button class="${tab==t?'on':''}" onclick="tab='${t}';render()">${t}</button>`).join('')}</div>${body}</div>`;
  }
  return `<div class="head"><div><h1>Tus <b>pacientes</b></h1><p class="sub">${activos().length} en seguimiento activo</p></div><button class="btn" onclick="modal('pac')">＋ Nuevo paciente</button></div>
- <div class="split"><div class="plist-wrap ${pacSel?'hide':''}"><div class="search">${IC.search}<input placeholder="Buscar paciente" value="${window._q||''}" oninput="window._q=this.value;const s=this.selectionStart;render();const i=document.querySelector('.search input');i.focus();i.setSelectionRange(s,s)"></div><div class="plist">${list}</div></div>${det}</div>`;
+ <div class="split"><div class="plist-wrap ${pacSel?'hide':''}"><div class="search">${IC.search}<input placeholder="Buscar paciente" value="${window._q||''}" oninput="window._q=this.value;const s=this.selectionStart;render();const i=document.querySelector('.search input');i.focus();i.setSelectionRange(s,s)"></div><div class="plist">${list||'<p class="sub" style="padding:10px">'+(verArch?'No hay pacientes archivados.':'Sin pacientes.')+'</p>'}</div>${archToggle()}</div>${det}</div>`;
 }
 
 /* ---------- DOCUMENTOS ---------- */
@@ -833,28 +855,28 @@ function pistas(p){
 }
 function vPac(){
  const q=(window._q||'').toLowerCase();
- const list=PAC.filter(p=>!p.arch&&p.n.toLowerCase().includes(q)).map(p=>`<button class="${pacSel==p.id?'on':''}" onclick="pacSel=${p.id};tab='Resumen';render()">${AV(p)}<span><b>${p.n}</b><small>${p.mot}</small></span></button>`).join('');
+ const list=PAC.filter(p=>(verArch?!!p.arch:!p.arch)&&p.n.toLowerCase().includes(q)).map(p=>`<button class="${pacSel==p.id?'on':''}" onclick="pacSel=${p.id};tab='Resumen';render()">${AV(p)}<span><b>${p.n}</b><small>${p.mot}</small></span></button>`).join('');
  const p=PAC.find(x=>x.id==pacSel);
  let det='<div class="card" style="text-align:center;color:var(--tinta2);padding:60px 20px">Elige un paciente para ver su expediente.</div>';
  if(p){
   let body='';
   if(tab=='Resumen') body=`<dl class="kv"><dt>Teléfono</dt><dd>${p.tel}</dd><dt>Correo</dt><dd>${p.mail}</dd><dt>En terapia desde</dt><dd>${p.desde}</dd><dt>Sesiones</dt><dd>${p.n_ses}</dd><dt>Motivo</dt><dd>${p.mot}</dd><dt>Próxima cita</dt><dd>${p.prox}</dd><dt>Consentimiento</dt><dd>${p.cons?`<span class="chip ok">Firmado · ${p.cons.c}</span>`:'<span class="chip red">Pendiente</span>'}</dd></dl>
-   <div class="row" style="justify-content:flex-start;margin:16px 0 0">${p.tel?`<button class="btn wa sm" onclick="waPaciente(${p.id})">${IC.wa} WhatsApp</button>`:''}<button class="btn ghost sm" onclick="modal('cita',${p.id})">Agendar cita</button><button class="btn ghost sm" onclick="modal('pac',${p.id})">Editar datos</button><button class="btn ghost sm" onclick="archivar(${p.id})">Archivar</button></div><div class="eyebrow" style="margin-top:22px">Última nota</div>${p.notas[0]?`<div class="note"><div class="d">${p.notas[0][0]}</div><p>${p.notas[0][1]}</p></div>`:'<p class="sub">Sin notas todavía.</p>'}`;
+   <div class="row" style="justify-content:flex-start;margin:16px 0 0">${p.tel?`<button class="btn wa sm" onclick="waPaciente(${p.id})">${IC.wa} WhatsApp</button>`:''}<button class="btn ghost sm" onclick="modal('cita',${p.id})">Agendar cita</button><button class="btn ghost sm" onclick="modal('pac',${p.id})">Editar datos</button>${p.arch?`<button class="btn ghost sm" onclick="desarchivar(${p.id})">Desarchivar</button>`:`<button class="btn ghost sm" onclick="archivar(${p.id})">Archivar</button>`}</div><div class="eyebrow" style="margin-top:22px">Última nota</div>${p.notas[0]?`<div class="note"><div class="d">${p.notas[0][0]}</div><p>${p.notas[0][1]}</p></div>`:'<p class="sub">Sin notas todavía.</p>'}`;
   if(tab=='Historia'){
    const hs=pistas(p);
-   body=p.hc?`<div class="row" style="justify-content:flex-start;margin:0 0 4px"><button class="btn ghost sm" onclick="modal('historia')">Editar</button><button class="btn ghost sm" onclick="window.print()">Imprimir</button></div>`+HC_CAMPOS.map(([k,l])=>`<div class="note"><div class="d">${l}</div><p>${esc(p.hc[k]||'—')}</p></div>`).join(''):`<p class="sub" style="margin-bottom:12px">Aún no hay historia clínica de este paciente.</p><button class="btn" onclick="modal('historia')">Iniciar historia clínica (primera sesión)</button>`;
+   body=p.hc?`<div class="row" style="justify-content:flex-start;margin:0 0 4px"><button class="btn ghost sm" onclick="modal('historia')">Editar</button><button class="btn ghost sm" onclick="imprimirHistoria()">Imprimir</button></div>`+HC_CAMPOS.map(([k,l])=>`<div class="note"><div class="d">${l}</div><p>${esc(p.hc[k]||'—')}</p></div>`).join(''):`<p class="sub" style="margin-bottom:12px">Aún no hay historia clínica de este paciente.</p><button class="btn" onclick="modal('historia')">Iniciar historia clínica (primera sesión)</button>`;
    if(hs.length)body+=`<div class="eyebrow" style="margin-top:20px">Pistas de las pruebas · para explorar</div>${hs.map(h=>`<div class="item"><span class="dot"></span><div class="txt">${h[0]}<small>${h[1]}</small></div></div>`).join('')}<p style="font-size:12px;color:var(--tinta2);margin-top:8px">Orientación, no diagnóstico. Verifica los códigos en la CIE-11 oficial.</p>`;
   }
-  if(tab=='Sesiones') body=`<button class="btn sm" onclick="modal('nota')">＋ Nota de sesión</button>${p.notas.map(n=>`<div class="note"><div class="d">${n[0]}</div><p>${n[1]}</p></div>`).join('')}`;
+  if(tab=='Sesiones') body=`<div class="row" style="justify-content:flex-start;margin:0 0 6px"><button class="btn sm" onclick="modal('nota')">＋ Nota de sesión</button><button class="btn ghost sm" onclick="docPac=${p.id};docSel=ASIS_I;go('doc')">Registro de asistencias</button></div>${p.notas.map(n=>`<div class="note"><div class="d">${n[0]}</div><p>${n[1]}</p></div>`).join('')}`;
   if(tab=='Pruebas') body=pruebasTab(p);
   if(tab=='Objetivos') body=(p.obj.length?p.obj.map((o,i)=>`<div class="obj"><div class="oh"><span>${esc(o.t)}</span><b>${o.pct}%</b></div><div class="prog" style="margin:8px 0"><i style="width:${o.pct}%"></i></div><div class="oa"><button class="btn ghost sm" onclick="setProg(${i},-10)">−10</button><button class="btn ghost sm" onclick="setProg(${i},10)">+10</button></div></div>`).join(''):'<p class="sub">Sin objetivos todavía.</p>')+`<div class="row" style="justify-content:flex-start"><button class="btn sm" onclick="modal('obj')">＋ Objetivo</button></div>`;
   if(tab=='Tareas') body=(p.tareas.length?p.tareas.map((t,i)=>`<div class="item"><span class="leaf ${t[1]?'on':''}" onclick="toggleTarea(${i})" style="cursor:pointer"></span><div class="txt" style="${t[1]?'text-decoration:line-through;opacity:.6':''}">${esc(t[0])}</div></div>`).join(''):'<p class="sub">Sin tareas.</p>')+`<div class="row" style="justify-content:flex-start"><button class="btn sm" onclick="modal('tarea')">＋ Asignar tarea</button><button class="btn ghost sm" onclick="waTareas()">Enviar por WhatsApp</button></div>`;
   if(tab=='Documentos') body=`<div class="docs"><button onclick="go('doc')">${IC.doc}<span><b>Consentimiento informado</b><br><small class="sub">${p.cons?'Firmado · '+p.cons.c:'Pendiente de firma'}</small></span></button><button onclick="go('doc')">${IC.doc}<span><b>Aviso de privacidad</b><br><small class="sub">${p.cons?'Aceptado · '+p.cons.c:'Pendiente'}</small></span></button><button onclick="go('doc')">${IC.doc}<span><b>Constancia de asistencia</b><br><small class="sub">Generada · 02 oct 2026</small></span></button></div><div class="row" style="justify-content:flex-start"><button class="btn sm" onclick="docPac=${p.id};go('doc')">Nuevo documento</button>${p.cons?'':`<button class="btn ghost sm" onclick="docPac=${p.id};docSel=1;go('doc')">Preparar consentimiento</button><button class="btn sm" onclick="firmarCons(${p.id})">Marcar como firmado</button>`}</div>`;
-  det=`<div class="card"><div style="display:flex;align-items:center;gap:14px">${AV(p,"width:54px;height:54px;font-size:22px")}<div style="flex:1"><h2>${p.n}</h2><span class="sub" style="font-size:13px">${p.mot}</span></div><button class="btn ghost sm mob-only" onclick="pacSel=null;render()">‹ Lista</button></div>
+  det=`<div class="card"><div style="display:flex;align-items:center;gap:14px">${avFicha(p)}<div style="flex:1"><h2>${p.n}</h2><span class="sub" style="font-size:13px">${p.mot}</span></div><button class="btn ghost sm mob-only" onclick="pacSel=null;render()">‹ Lista</button></div>
    <div class="tabs">${['Resumen','Historia','Sesiones','Pruebas','Objetivos','Tareas','Documentos'].map(t=>`<button class="${tab==t?'on':''}" onclick="tab='${t}';render()">${t}</button>`).join('')}</div>${body}</div>`;
  }
  return `<div class="head"><div><h1>Tus <b>pacientes</b></h1><p class="sub">${activos().length} en seguimiento activo</p></div><button class="btn" onclick="modal('pac')">＋ Nuevo paciente</button></div>
- <div class="split"><div class="plist-wrap ${pacSel?'hide':''}"><div class="search">${IC.search}<input placeholder="Buscar paciente" value="${window._q||''}" oninput="window._q=this.value;const s=this.selectionStart;render();const i=document.querySelector('.search input');i.focus();i.setSelectionRange(s,s)"></div><div class="plist">${list}</div></div>${det}</div>`;
+ <div class="split"><div class="plist-wrap ${pacSel?'hide':''}"><div class="search">${IC.search}<input placeholder="Buscar paciente" value="${window._q||''}" oninput="window._q=this.value;const s=this.selectionStart;render();const i=document.querySelector('.search input');i.focus();i.setSelectionRange(s,s)"></div><div class="plist">${list||'<p class="sub" style="padding:10px">'+(verArch?'No hay pacientes archivados.':'Sin pacientes.')+'</p>'}</div>${archToggle()}</div>${det}</div>`;
 }
 function setProg(i,d){const o=PAC.find(x=>x.id==pacSel).obj[i];o.pct=Math.max(0,Math.min(100,o.pct+d));render()}
 function guardarObj(){const t=$('#ob-t').value.trim();if(t)PAC.find(x=>x.id==pacSel).obj.push({t,pct:0});closeM();render()}
@@ -875,7 +897,7 @@ function docBody(i,p){
 }
 function vDoc(){
  const p=PAC.find(x=>x.id==docPac)||PAC[0];
- return `<div class="head"><div><h1>Tus <b>documentos</b></h1><p class="sub">Con tu membrete, logo y firma. Listos para imprimir o guardar en PDF.</p></div><button class="btn" onclick="window.print()">Imprimir</button></div>
+ return `<div class="head"><div><h1>Tus <b>documentos</b></h1><p class="sub">Con tu membrete, logo y firma. Listos para imprimir o guardar en PDF.</p></div><button class="btn" onclick="imprimirDoc()">Imprimir</button></div>
  <div class="split" style="grid-template-columns:260px minmax(0,1fr)"><div><div class="docs"><select class="f" style="margin-bottom:6px" onchange="docPac=+this.value;render()">${PAC.map(x=>`<option value="${x.id}" ${x.id==p.id?'selected':''}>${x.n}</option>`).join('')}</select>${DOCT.map((t,i)=>`<button class="${docSel==i?'on':''}" onclick="docSel=${i};render()">${IC.doc}<span>${t}</span></button>`).join('')}<p class="sub" style="font-size:12.5px;margin-top:8px">Textos de ejemplo. Revísalos con asesoría legal antes de usarlos. Tu cédula, domicilio y firma se capturan una sola vez.</p></div></div>
  <div class="paper"><div class="lh"><img src="${document.querySelector('.brand img').src}" alt=""><div><b>Atrium Psicología</b><small>PSIC. VÍCTOR MANUEL REYES FLORES · CÉD. PROF. [pendiente] · TIJUANA, B.C.</small></div></div>
  <p style="text-align:right;font-size:13px">Tijuana, B.C., 26 de octubre de 2026</p><p style="text-align:center;font-weight:700;letter-spacing:.08em;margin:18px 0">${DOCT[docSel].toUpperCase()}</p>${docBody(docSel,p)}</div></div>`;
@@ -913,7 +935,7 @@ function modal(k,arg){
   propia:`<h2>Prueba propia</h2><p class="sub">Escribe tus propios reactivos, uno por línea.</p><label>Nombre</label><input class="f" id="pp-n"><label>Opciones de respuesta</label><select class="f" id="pp-e"><option value="f">Frecuencia: Nunca · Varios días · … (0–3)</option><option value="i">Intensidad: Nada · Un poco · … (0–4)</option><option value="s">Sí / No (0–1)</option></select><label>Reactivos</label><textarea id="pp-i" style="min-height:140px"></textarea>`,
   resp:`<h2>Respaldo imprimible</h2><p class="sub">Genera un documento con todo tu mundo: agenda, pacientes, historia, notas, pruebas, objetivos y cobros, listo para imprimir o guardar en PDF.</p><label>Incluir</label><select class="f"><option>Todo</option><option>Solo un paciente</option></select>`,
   pago:`<h2>Registrar pago</h2><label>Paciente</label>${selP('pg-p')}<label>Concepto</label><input class="f" id="pg-c" value="Sesión"><div style="display:flex;gap:10px"><div style="flex:1"><label>Monto (MXN)</label><input class="f" id="pg-m" type="number" value="800"></div><div style="flex:1"><label>Método</label><select class="f" id="pg-t"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select></div></div><label>Estado</label><select class="f" id="pg-e"><option>Pagado</option><option>Pendiente</option></select>`,
-  historia:`<h2>Historia clínica</h2><p class="sub">${pa.n}</p>${HC_CAMPOS.map(([c,l])=>`<label>${l}</label><textarea id="hc-${c}">${esc((pa.hc&&pa.hc[c])||'')}</textarea>`).join('')}`,
+  historia:`<h2>Historia clínica</h2><p class="sub">${pa.n}</p>${HC_CAMPOS.map(([c,l])=>`<label>${l}</label><textarea id="hc-${c}">${esc((pa.hc&&pa.hc[c])||'')}</textarea><small class="ej">${HC_EJ[c]||''}</small>`).join('')}`,
   obj:`<h2>Nuevo objetivo</h2><p class="sub">${pa.n}</p><label>Objetivo</label><textarea id="ob-t"></textarea>`
  };
  const FOOT={aplicar:['Comenzar','startTest()'],propia:['Crear prueba','crearPropia()'],nota:['Guardar nota','guardarNota()'],pago:['Guardar','guardarPago()'],historia:['Guardar','guardarHC()'],obj:['Agregar','guardarObj()'],pac:['Guardar','guardarPac()']}[k]||['Guardar','closeM()'];
@@ -1139,7 +1161,7 @@ function vAgenda(){
 /* ---- pacientes ---- */
 function guardarPac(){
  const n=$('#np-n').value.trim();if(!n){toast('Escribe el nombre',true);return}
- const id=$('#np-id').value,vals={n,tel:$('#np-t').value.trim(),mail:$('#np-c').value.trim(),mot:$('#np-m').value.trim()||'Por definir',tarifa:+$('#np-f').value||0};
+ const id=$('#np-id').value,vals={n,tel:$('#np-t').value.trim(),mail:$('#np-c').value.trim(),mot:$('#np-m').value.trim()||'Por definir',tarifa:+$('#np-f').value||0,tutor:($('#np-tu')?$('#np-tu').value.trim():'')};
  let p;
  if(id){p=PAC.find(x=>x.id==id);Object.assign(p,vals)}
  else{p=hid(Object.assign({id:nuevoId(),desde:corto()+' '+new Date().getFullYear()},vals));PAC.push(p);pacSel=p.id;tab='Resumen'}
@@ -1213,7 +1235,7 @@ function docBody(i,p){
 function vDoc(){
  const p=PAC.find(x=>x.id==docPac)||activos()[0];
  if(!p)return `<div class="head"><div><h1>Tus <b>documentos</b></h1></div></div><div class="card" style="text-align:center;padding:50px 20px"><p class="sub">Agrega un paciente para generar documentos.</p><button class="btn" style="margin-top:14px" onclick="modal('pac')">＋ Nuevo paciente</button></div>`;
- return `<div class="head"><div><h1>Tus <b>documentos</b></h1><p class="sub">Con tu membrete, logo y firma. Listos para imprimir o guardar en PDF.</p></div><button class="btn" onclick="window.print()">Imprimir</button></div>
+ return `<div class="head"><div><h1>Tus <b>documentos</b></h1><p class="sub">Con tu membrete, logo y firma. Listos para imprimir o guardar en PDF.</p></div><button class="btn" onclick="imprimirDoc()">Imprimir</button></div>
  <div class="split" style="grid-template-columns:260px minmax(0,1fr)"><div class="docs-side"><div class="docs"><select class="f" style="margin-bottom:6px" onchange="docPac=+this.value;render()">${activos().map(x=>`<option value="${x.id}" ${x.id==p.id?'selected':''}>${esc(x.n)}</option>`).join('')}</select>${DOCT.map((t,i)=>`<button class="${docSel==i?'on':''}" onclick="docSel=${i};render()">${IC.doc}<span>${t}</span></button>`).join('')}<p class="sub" style="font-size:12.5px;margin-top:8px">Los textos son un punto de partida: revísalos con asesoría legal. Tus datos y firma se editan en Ajustes.</p><button class="btn ghost sm" onclick="modal('ajustes')">Editar mis datos y firma</button></div></div>
  <div class="paper">${membrete()}<p style="text-align:right;font-size:13px">Tijuana, B.C., ${hoyLargo()}</p><p style="text-align:center;font-weight:700;letter-spacing:.08em;margin:18px 0">${DOCT[docSel].toUpperCase()}</p>${docBody(docSel,p)}</div></div>`;
 }
@@ -1259,12 +1281,12 @@ function modal(k,arg){
  const M={
   nota:`<h2>Nota de sesión</h2><label>Paciente</label>${selP('nt-p')}<label>Formato</label><select class="f" id="nt-f" onchange="notaFields(this.value)">${Object.keys(NOTA_F).map(f=>`<option>${f}</option>`).join('')}</select><div id="nf"></div><p class="sub" style="font-size:12px;margin-top:10px">Para dictar, usa el micrófono del teclado de tu celular o computadora.</p>`,
   cita:`<h2>Nueva cita</h2><label>Paciente</label><input class="f" id="ci-n" list="pl" placeholder="Escribe o elige…" value="${esc(arg?((PAC.find(x=>x.id==arg)||{}).n||''):'')}"><datalist id="pl">${activos().map(p=>`<option>${esc(p.n)}</option>`).join('')}</datalist><div style="display:flex;gap:10px"><div style="flex:1"><label>Fecha</label><input class="f" id="ci-f" type="date" value="${selDate}"></div><div style="flex:1"><label>Hora</label><input class="f" id="ci-h" type="time" value="10:00"></div></div><div style="display:flex;gap:10px"><div style="flex:1"><label>Tipo</label><select class="f" id="ci-t"><option>Seguimiento</option><option>Primera vez</option><option>Evaluación</option><option>Otro</option></select></div><div style="flex:1"><label>Duración (min)</label><input class="f" id="ci-d" type="number" value="${CFG.dur||50}"></div></div><label>Repetir</label><select class="f" id="ci-r"><option value="1">No repetir</option><option value="4">Cada semana · 4 veces</option><option value="8">Cada semana · 8 veces</option></select><p class="sub" style="font-size:12px;margin-top:8px">Si el nombre no está en tu lista, se agenda como persona nueva.</p>`,
-  pac:`<h2>${arg?'Editar datos':'Nuevo paciente'}</h2><input type="hidden" id="np-id" value="${arg||''}"><label>Nombre</label><input class="f" id="np-n" value="${esc(arg?pa.n:'')}"><label>Teléfono (WhatsApp)</label><input class="f" id="np-t" inputmode="tel" value="${esc(arg?pa.tel:'')}"><label>Correo</label><input class="f" id="np-c" value="${esc(arg?pa.mail:'')}"><label>Motivo de consulta</label><textarea id="np-m">${esc(arg&&pa.mot!='Por definir'?pa.mot:'')}</textarea><label>Tarifa por sesión (MXN, opcional)</label><input class="f" id="np-f" type="number" value="${arg&&pa.tarifa?pa.tarifa:''}" placeholder="${CFG.tarifa||''}">`,
+  pac:`<h2>${arg?'Editar datos':'Nuevo paciente'}</h2><input type="hidden" id="np-id" value="${arg||''}"><label>Nombre</label><input class="f" id="np-n" value="${esc(arg?pa.n:'')}"><label>Teléfono (WhatsApp)</label><input class="f" id="np-t" inputmode="tel" value="${esc(arg?pa.tel:'')}"><label>Correo</label><input class="f" id="np-c" value="${esc(arg?pa.mail:'')}"><label>Responsable / tutor (si aplica)</label><input class="f" id="np-tu" placeholder="Ej. Karla (mamá)" value="${esc(arg?(pa.tutor||''):'')}"><label>Motivo de consulta</label><textarea id="np-m">${esc(arg&&pa.mot!='Por definir'?pa.mot:'')}</textarea><label>Tarifa por sesión (MXN, opcional)</label><input class="f" id="np-f" type="number" value="${arg&&pa.tarifa?pa.tarifa:''}" placeholder="${CFG.tarifa||''}">`,
   aplicar:`<h2>Aplicar prueba</h2><p class="sub">Se califica sola y el resultado queda en el expediente.</p><label>Paciente</label>${selP('sel-pac')}<label>Prueba</label><select class="f" id="sel-test">${Object.values(TESTS).map(T=>`<option value="${T.id}" ${T.id==arg?'selected':''}>${esc(T.titulo)} · ${esc(T.sub)}</option>`).join('')}</select>`,
   propia:`<h2>Prueba propia</h2><p class="sub">Escribe tus propios reactivos, uno por línea.</p><label>Nombre</label><input class="f" id="pp-n"><label>Opciones de respuesta</label><select class="f" id="pp-e"><option value="f">Frecuencia: Ningún día · Varios días · … (0–3)</option><option value="i">Intensidad: Nada · Un poco · … (0–4)</option><option value="s">Sí / No (0–1)</option></select><label>Reactivos</label><textarea id="pp-i" style="min-height:140px"></textarea>`,
   resp:`<h2>Respaldo</h2><p class="sub">Tus datos ya están en tu hoja de Google. Aquí puedes sacar una copia imprimible o un archivo.</p><label>Imprimir respaldo de</label><select class="f" id="rs-p"><option value="todo">Todo el consultorio</option>${PAC.map(p=>`<option value="${p.id}">${esc(p.n)}</option>`).join('')}</select><div class="row" style="justify-content:flex-start;margin-top:14px"><button class="btn" onclick="imprimirRespaldo()">Ver e imprimir</button><button class="btn ghost" onclick="descargarJSON()">Descargar copia (archivo)</button></div>`,
   pago:`<h2>Registrar pago</h2><label>Paciente</label>${selP('pg-p')}<label>Concepto</label><input class="f" id="pg-c" value="Sesión"><div style="display:flex;gap:10px"><div style="flex:1"><label>Monto (MXN)</label><input class="f" id="pg-m" type="number" value="${CFG.tarifa||''}"></div><div style="flex:1"><label>Método</label><select class="f" id="pg-t"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select></div></div><label>Estado</label><select class="f" id="pg-e"><option>Pagado</option><option>Pendiente</option></select>`,
-  historia:`<h2>Historia clínica</h2><p class="sub">${esc(pa.n||'')}</p>${HC_CAMPOS.map(([c,l])=>`<label>${l}</label><textarea id="hc-${c}">${esc((pa.hc&&pa.hc[c])||'')}</textarea>`).join('')}`,
+  historia:`<h2>Historia clínica</h2><p class="sub">${esc(pa.n||'')}</p>${HC_CAMPOS.map(([c,l])=>`<label>${l}</label><textarea id="hc-${c}">${esc((pa.hc&&pa.hc[c])||'')}</textarea><small class="ej">${HC_EJ[c]||''}</small>`).join('')}`,
   obj:`<h2>Nuevo objetivo</h2><p class="sub">${esc(pa.n||'')}</p><label>Objetivo</label><textarea id="ob-t"></textarea>`,
   tarea:`<h2>Nueva tarea</h2><p class="sub">${esc(pa.n||'')}</p><label>Tarea</label><textarea id="ta-t"></textarea>`,
   ficha:`<h2>Ficha para el paciente</h2><label>Ficha</label><select class="f" id="fi-k">${Object.keys(FICHAS).map(k=>`<option value="${k}" ${k==arg?'selected':''}>${FICHAS[k].t}</option>`).join('')}</select><label>Paciente</label>${selP('fi-p')}<div class="row" style="justify-content:flex-start;margin-top:14px"><button class="btn wa" onclick="enviarFicha()">${IC.wa} Enviar por WhatsApp</button><button class="btn ghost" onclick="imprimirFicha()">Imprimir</button></div>`,
@@ -1530,6 +1552,90 @@ function guiaBienvenida(){
 }
 function guiaVista(){closeM();if(!CFG.guiaVista){CFG.guiaVista=true;saveCfg()}}
 function guiaInicio(){if(API&&!CFG.guiaVista&&!PAC.length)setTimeout(guiaBienvenida,500)}
+
+/* ================= MEJORAS: archivados, asistencias, ejemplos, foto ================= */
+let verArch=false;
+const SIL=`<svg viewBox="0 0 96 96" aria-hidden="true"><circle class="sbg" cx="48" cy="48" r="48"/><circle class="sfg" cx="48" cy="37" r="16"/><path class="sfg" d="M15 90c3-19 17-30 33-30s30 11 33 30z"/></svg>`;
+function archToggle(){
+ const n=PAC.filter(p=>p.arch).length;
+ if(!n&&!verArch)return '';
+ return verArch?`<button class="btn ghost sm" style="margin-top:10px;width:100%" onclick="verArch=false;pacSel=null;render()">← Volver a pacientes activos</button>`
+  :`<button class="btn ghost sm" style="margin-top:10px;width:100%" onclick="verArch=true;pacSel=null;render()">Ver archivados (${n})</button>`;
+}
+function desarchivar(pid){const p=PAC.find(x=>x.id==pid);if(!p)return;delete p.arch;savePac(p);verArch=false;render();toast(primer(p.n)+' volvió a tus pacientes activos')}
+/* ---- ejemplos en la historia clínica ---- */
+const HC_EJ={
+ motivo:'Ej.: Acude por ansiedad ante cambios en el trabajo y dificultad para dormir desde hace 2 meses. Dice: «no puedo dejar de pensar». Viene por iniciativa propia.',
+ historia:'Ej.: Inicia hace ~6 meses tras una reestructura en su empresa. Preocupación constante, tensión muscular, insomnio de conciliación. Empeora los domingos por la noche; mejora con ejercicio. Sin tratamiento previo.',
+ antPers:'Ej.: Sin enfermedades crónicas. Duerme 5 a 6 h. Sin consumo de sustancias; 3 tazas de café al día. Sin atención psicológica previa. Medicamentos actuales: ninguno.',
+ antFam:'Ej.: Madre con cuadros de ansiedad. Padre fallecido hace 3 años. Hermana sin antecedentes. Relación cercana con la pareja y los hijos.',
+ estado:'Ej.: Aspecto cuidado, cooperador. Ánimo ansioso, afecto congruente. Lenguaje fluido, pensamiento organizado, orientado en tiempo, lugar y persona. Sin ideación suicida referida.',
+ impresion:'Ej.: Datos compatibles con un cuadro ansioso asociado a estrés laboral. Hipótesis a explorar con la entrevista y pruebas (por ejemplo GAD-7). Tu criterio clínico es el que decide.',
+ plan:'Ej.: 12 sesiones semanales de enfoque cognitivo-conductual: psicoeducación, reestructuración cognitiva y relajación. Meta: bajar el puntaje de ansiedad. Reevaluar en la sesión 6.'
+};
+/* ---- foto de perfil ---- */
+function avFicha(p){return `<label class="avBig" title="${p.foto?'Cambiar foto':'Agregar foto'}">${p.foto?`<img src="${p.foto}" alt="">`:SIL}<span class="plus">+</span><input type="file" accept="image/*" hidden onchange="fotoFicha(this,${p.id})"></label>`}
+function fotoFicha(el,pid){const f=el.files[0],p=PAC.find(x=>x.id==pid);if(!f||!p)return;reducirImg(f,256,d=>{p.foto=d;savePac(p);render();toast('Foto guardada')})}
+fotoPacCarga=function(el){const f=el.files[0];if(!f)return;reducirImg(f,256,d=>{fotoTmp=d;const v=$('#fp-prev');v.src=d;v.style.display='block';$('#fp-sil').style.display='none';$('#fp-quitar').style.display='inline'})};
+fotoPacQuitar=function(){fotoTmp='';$('#fp-prev').style.display='none';$('#fp-sil').style.display='block';$('#fp-quitar').style.display='none';const i=document.getElementById('fp-file');if(i)i.value=''};
+const _modal3=modal;
+modal=function(k,arg){
+ const r=_modal3(k,arg);
+ if(k=='pac'){
+  const old=document.getElementById('fp-prev');
+  if(old){const fila=old.closest('div');const lab=fila&&fila.previousElementSibling;if(lab&&lab.tagName=='LABEL')lab.remove();if(fila)fila.remove()}
+  const pa=arg&&PAC.find(x=>x.id==arg),h=document.getElementById('np-n');
+  if(h){const lab=h.previousElementSibling;(lab&&lab.tagName=='LABEL'?lab:h).insertAdjacentHTML('beforebegin',
+   `<div class="fotoSel"><label class="fotoAv" title="Agregar foto"><span id="fp-sil" style="display:${pa&&pa.foto?'none':'block'}">${SIL}</span><img id="fp-prev" alt="" src="${pa&&pa.foto||''}" style="display:${pa&&pa.foto?'block':'none'}"><span class="plus">+</span><input type="file" id="fp-file" accept="image/*" hidden onchange="fotoPacCarga(this)"></label><button type="button" class="linkbtn" id="fp-quitar" onclick="fotoPacQuitar()" style="display:${pa&&pa.foto?'inline':'none'}">Quitar foto</button></div>`)}
+ }
+ return r;
+};
+/* ---- registro de asistencias (documento imprimible) ---- */
+const ASIS_I=5;DOCT.push('Registro de asistencias');
+const D3=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const f2=iso=>{const d=fromISO(iso);return D3[d.getDay()]+' '+pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+String(d.getFullYear()).slice(2)};
+const f4=iso=>{const [y,m,d]=iso.split('-');return d+'/'+m+'/'+y};
+const h12=h=>{const [a,b]=(h||'0:0').split(':').map(Number);return (a%12||12)+':'+pad(b)+' '+(a>=12?'pm':'am')};
+function asisFilas(p){
+ return CIT.filter(c=>c.pid==p.id&&(c.estado=='Completada'||c.estado=='Cancelada')).sort(byHora).map(c=>{
+  const g=PAG.find(x=>(c.pagoId&&x.id==c.pagoId)||x.cita==c.id);
+  return {c,est:c.estado=='Completada'?'Asistió':'Canceló',pago:g?(g.e=='Pagado'?'Pagado':'Pendiente'):'—'};
+ });
+}
+function asistHTML(p){
+ const F=asisFilas(p),as=F.filter(x=>x.c.estado=='Completada'),pend=PAG.filter(x=>x.p==p.id&&x.e=='Pendiente').length;
+ const ini=F.length?f4(F[0].c.fecha):esc(p.desde||''),ult=as.length?f4(as[as.length-1].c.fecha):'—';
+ const n=Math.max(20,F.length+5);let rows='';
+ for(let i=0;i<n;i++){const x=F[i];
+  rows+=x?`<tr><td class="n">${i+1}</td><td>${f2(x.c.fecha)}</td><td>${h12(x.c.hora)}</td><td>${x.est}</td><td>${x.pago}</td><td class="nt" contenteditable="true" onblur="asisNota(${x.c.id},this)">${esc(x.c.nota||'')}</td></tr>`
+   :`<tr><td class="n">${i+1}</td><td></td><td></td><td></td><td></td><td></td></tr>`}
+ return `<div class="ah"><div class="alogo"><img src="${document.querySelector('.brand img').src}" alt=""><small>${esc(CFG.negocio)}</small></div><div><h2>Registro de Asistencias</h2><small>Control de sesiones y pagos</small></div></div>
+ <table class="info"><tr><td>Paciente: <b>${esc(p.n)}</b></td><td>Inicio de proceso: ${ini}</td></tr><tr><td>Responsable / Tutor: ${esc(p.tutor||'')}</td><td>Teléfono: ${esc(p.tel&&p.tel!='—'?p.tel:'')}</td></tr></table>
+ <div class="sum"><span>Sesiones asistidas: <b>${as.length}</b></span><span>Pagos: <b>${pend?pend+' pendiente'+(pend>1?'s':''):'Al corriente'}</b></span><span>Última sesión: <b>${ult}</b></span></div>
+ <table class="reg"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Estatus</th><th>Pago</th><th>Notas</th></tr></thead><tbody>${rows}</tbody></table>
+ <p class="noprint" style="font-size:12px;color:#8a8a90;margin-top:10px">Se llena sola con las sesiones completadas y canceladas. Toca una celda de «Notas» para escribir; se guarda al salir de la celda.</p>`;
+}
+function asisNota(id,el){const c=CIT.find(x=>x.id==id);if(!c)return;const t=el.textContent.trim();if((c.nota||'')===t)return;c.nota=t;saveCita(c)}
+const _vDoc=vDoc;
+vDoc=function(){
+ let h=_vDoc();
+ if(docSel===ASIS_I){const p=PAC.find(x=>x.id==docPac)||activos()[0];if(p)h=h.replace(/<div class="paper">[\s\S]*<\/div><\/div>$/,()=>'<div class="paper asis">'+asistHTML(p)+'</div></div>')}
+ return h;
+};
+
+
+/* ---- impresión (vía vista previa, para que no salga en blanco) ---- */
+function imprimirDoc(){
+ const el=document.querySelector('#main .paper');if(!el){window.print();return}
+ const c=el.cloneNode(true);c.querySelectorAll('.noprint').forEach(x=>x.remove());c.querySelectorAll('[contenteditable]').forEach(x=>x.removeAttribute('contenteditable'));
+ imprimirHTML(`<div class="${c.className}">${c.innerHTML}</div>`);
+ setTimeout(()=>window.print(),350);
+}
+function imprimirHistoria(){
+ const p=PAC.find(x=>x.id==pacSel);if(!p)return;
+ imprimirHTML(`<div class="paper">${membrete()}<p style="text-align:center;font-weight:700;letter-spacing:.08em;margin:18px 0">HISTORIA CLÍNICA</p><p><b>Paciente:</b> ${esc(p.n)}</p>${HC_CAMPOS.map(([k,l])=>`<p><b>${l}.</b><br>${esc((p.hc&&p.hc[k])||'—')}</p>`).join('')}${firmaHTML()}</div>`);
+ setTimeout(()=>window.print(),350);
+}
 
 if(!DEMO){document.querySelector('.banner').remove();document.body.classList.add('real')}
 cargar(()=>{setTheme(CFG.tema=='dark'?'dark':CFG.tema=='light'?'light':(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));const l=$('#loader');if(l)l.remove();resetIdle();applyLogo();render();guiaInicio()});

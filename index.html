@@ -336,6 +336,7 @@ html[data-theme=dark] .sbg{fill:#2a2b33}html[data-theme=dark] .sfg{fill:#5d5e6b}
 .asis .reg thead{display:table-header-group}.asis .reg tr{page-break-inside:avoid}
 @media(max-width:900px){.paper.asis{padding:18px 12px;overflow-x:auto}.asis .reg{font-size:11px;min-width:520px}.asis .ah h2{font-size:18px}}
 @page{size:Letter;margin:12mm}
+.mini{width:26px;height:26px;border-radius:50%;background:var(--fill);color:var(--azul);font-size:13px}.asis .reg td.ac,.asis .reg th.ac{width:36px;text-align:center;border:0!important;background:none!important;padding:0 0 0 6px}
 @media print{.paper.asis,.apl .paper.asis{padding:0!important;max-width:none!important;width:100%!important;box-sizing:border-box;box-shadow:none!important;overflow:visible!important}.asis .reg,.asis .info{width:100%!important;table-layout:fixed}.asis .reg td.nt{min-width:0!important}.asis .reg th:nth-child(1),.asis .reg td.n{width:30px}.asis .reg th:nth-child(2){width:96px}.asis .reg th:nth-child(3){width:64px}.asis .reg th:nth-child(4){width:64px}.asis .reg th:nth-child(5){width:70px}.asis .reg td.nt:focus{outline:none;background:none}.apl-in{max-width:none!important;width:100%!important;padding:0!important}}
 </style>
 </head>
@@ -1597,25 +1598,64 @@ const f2=iso=>{const d=fromISO(iso);return D3[d.getDay()]+' '+pad(d.getDate())+'
 const f4=iso=>{const [y,m,d]=iso.split('-');return d+'/'+m+'/'+y};
 const h12=h=>{const [a,b]=(h||'0:0').split(':').map(Number);return (a%12||12)+':'+pad(b)+' '+(a>=12?'pm':'am')};
 function asisFilas(p){
- return CIT.filter(c=>c.pid==p.id&&(c.estado=='Completada'||c.estado=='Cancelada')).sort(byHora).map(c=>{
+ const auto=CIT.filter(c=>c.pid==p.id&&(c.estado=='Completada'||c.estado=='Cancelada')).map(c=>{
   const g=PAG.find(x=>(c.pagoId&&x.id==c.pagoId)||x.cita==c.id);
-  return {c,est:c.estado=='Completada'?'Asistió':'Canceló',pago:g?(g.e=='Pagado'?'Pagado':'Pendiente'):'—'};
+  const est=c.rEst||(c.estado=='Completada'?'Asistió':'Canceló');
+  const pago=c.rPago||(g?(g.e=='Pagado'?'Pagado':'Pendiente'):'—');
+  return {key:'c'+c.id,src:'c',fecha:c.fecha,hora:c.hora,est,pago,nota:c.nota||'',ref:c};
  });
+ const man=(p.reg||[]).map(r=>({key:'m'+r.id,src:'m',fecha:r.fecha,hora:r.hora,est:r.est,pago:r.pago,nota:r.nota||'',ref:r}));
+ return auto.concat(man).sort((a,b)=>(a.fecha+a.hora).localeCompare(b.fecha+b.hora));
 }
 function asistHTML(p){
- const F=asisFilas(p),as=F.filter(x=>x.c.estado=='Completada'),pend=PAG.filter(x=>x.p==p.id&&x.e=='Pendiente').length;
- const ini=F.length?f4(F[0].c.fecha):esc(p.desde||''),ult=as.length?f4(as[as.length-1].c.fecha):'—';
+ const F=asisFilas(p),as=F.filter(x=>x.est=='Asistió'),pend=F.filter(x=>x.pago=='Pendiente').length;
+ const ini=F.length?f4(F[0].fecha):esc(p.desde||''),ult=as.length?f4(as[as.length-1].fecha):'—';
  const n=Math.max(20,F.length+5);let rows='';
  for(let i=0;i<n;i++){const x=F[i];
-  rows+=x?`<tr><td class="n">${i+1}</td><td>${f2(x.c.fecha)}</td><td>${h12(x.c.hora)}</td><td>${x.est}</td><td>${x.pago}</td><td class="nt" contenteditable="true" onblur="asisNota(${x.c.id},this)">${esc(x.c.nota||'')}</td></tr>`
-   :`<tr><td class="n">${i+1}</td><td></td><td></td><td></td><td></td><td></td></tr>`}
+  rows+=x?`<tr><td class="n">${i+1}</td><td>${f2(x.fecha)}</td><td>${x.hora?h12(x.hora):''}</td><td>${esc(x.est)}</td><td>${esc(x.pago)}</td><td class="nt" contenteditable="true" onblur="asisNota('${x.key}',this)">${esc(x.nota)}</td><td class="noprint ac"><button class="mini" title="Editar" onclick="modal('asis',{pid:${p.id},key:'${x.key}'})">✎</button></td></tr>`
+   :`<tr><td class="n">${i+1}</td><td></td><td></td><td></td><td></td><td></td><td class="noprint ac"></td></tr>`}
  return `<div class="ah"><div class="alogo"><img src="${document.querySelector('.brand img').src}" alt=""><small>${esc(CFG.negocio)}</small></div><div><h2>Registro de Asistencias</h2><small>Control de sesiones y pagos</small></div></div>
  <table class="info"><tr><td>Paciente: <b>${esc(p.n)}</b></td><td>Inicio de proceso: ${ini}</td></tr><tr><td>Responsable / Tutor: ${esc(p.tutor||'')}</td><td>Teléfono: ${esc(p.tel&&p.tel!='—'?p.tel:'')}</td></tr></table>
  <div class="sum"><span>Sesiones asistidas: <b>${as.length}</b></span><span>Pagos: <b>${pend?pend+' pendiente'+(pend>1?'s':''):'Al corriente'}</b></span><span>Última sesión: <b>${ult}</b></span></div>
- <table class="reg"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Estatus</th><th>Pago</th><th>Notas</th></tr></thead><tbody>${rows}</tbody></table>
- <p class="noprint" style="font-size:12px;color:#8a8a90;margin-top:10px">Se llena sola con las sesiones completadas y canceladas. Toca una celda de «Notas» para escribir; se guarda al salir de la celda.</p>`;
+ <div class="noprint" style="margin:0 0 10px"><button class="btn sm" onclick="modal('asis',{pid:${p.id}})">＋ Agregar sesión</button></div>
+ <table class="reg"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Estatus</th><th>Pago</th><th>Notas</th><th class="noprint ac"></th></tr></thead><tbody>${rows}</tbody></table>
+ <p class="noprint" style="font-size:12px;color:#8a8a90;margin-top:10px">Las sesiones de tu agenda entran solas. Con «＋ Agregar sesión» capturas las anteriores o las que no están en la agenda, y con ✎ cambias el estatus, el pago o la nota de cualquier renglón. Todo se imprime tal como lo ves.</p>`;
 }
-function asisNota(id,el){const c=CIT.find(x=>x.id==id);if(!c)return;const t=el.textContent.trim();if((c.nota||'')===t)return;c.nota=t;saveCita(c)}
+function asisNota(key,el){
+ const t=el.textContent.trim(),p=PAC.find(x=>x.id==docPac)||activos()[0];
+ if(key[0]=='c'){const c=CIT.find(x=>x.id==key.slice(1));if(!c||(c.nota||'')===t)return;c.nota=t;saveCita(c)}
+ else{const r=((p&&p.reg)||[]).find(x=>x.id==key.slice(1));if(!r||(r.nota||'')===t)return;r.nota=t;savePac(p)}
+}
+function asisModal(arg){
+ const p=PAC.find(x=>x.id==arg.pid);if(!p)return;
+ const f=arg.key?asisFilas(p).find(x=>x.key==arg.key):null,auto=f&&f.src=='c';
+ const sel=(id,ops,v)=>`<select class="f" id="${id}">${ops.map(o=>`<option ${o==v?'selected':''}>${o}</option>`).join('')}</select>`;
+ $('#modal').innerHTML=`<h2>${f?'Editar renglón':'Agregar sesión'}</h2><p class="sub">${esc(p.n)}${auto?' · viene de tu agenda: la fecha y la hora se cambian en la cita':''}</p>
+ <div style="display:flex;gap:10px"><div style="flex:1"><label>Fecha</label><input class="f" id="as-f" type="date" value="${f?f.fecha:hoyISO()}" ${auto?'disabled':''}></div><div style="flex:1"><label>Hora</label><input class="f" id="as-h" type="time" value="${f?f.hora:'17:00'}" ${auto?'disabled':''}></div></div>
+ <div style="display:flex;gap:10px"><div style="flex:1"><label>Estatus</label>${sel('as-e',['Asistió','Canceló','Faltó'],f?f.est:'Asistió')}</div><div style="flex:1"><label>Pago</label>${sel('as-p',['Pagado','Pendiente','—'],f?f.pago:'Pagado')}</div></div>
+ <label>Notas</label><textarea id="as-n" style="min-height:70px" placeholder="Ej. Primera sesión. Cita adelantada a petición de la mamá.">${esc(f?f.nota:'')}</textarea>
+ <div class="row" style="justify-content:space-between">${f&&!auto?`<button class="btn ghost sm" style="color:#d70015" onclick="asisBorrar(${p.id},'${arg.key}')">Eliminar</button>`:'<span></span>'}<span style="display:flex;gap:10px"><button class="btn ghost" onclick="closeM()">Cancelar</button><button class="btn" onclick="asisGuardar(${p.id},${f?`'${arg.key}'`:'null'})">Guardar</button></span></div>`;
+ $('#ov').classList.add('on');
+}
+function asisGuardar(pid,key){
+ const p=PAC.find(x=>x.id==pid);if(!p)return;
+ const est=$('#as-e').value,pago=$('#as-p').value,nota=$('#as-n').value.trim();
+ if(key&&key[0]=='c'){const c=CIT.find(x=>x.id==key.slice(1));c.rEst=est;c.rPago=pago;c.nota=nota;saveCita(c)}
+ else{
+  const fecha=$('#as-f').value,hora=$('#as-h').value;if(!fecha){toast('Falta la fecha',true);return}
+  p.reg=p.reg||[];
+  if(key){const r=p.reg.find(x=>x.id==key.slice(1));Object.assign(r,{fecha,hora,est,pago,nota})}
+  else p.reg.push({id:nuevoId(),fecha,hora,est,pago,nota});
+  savePac(p);
+ }
+ closeM();render();toast('Registro guardado');
+}
+function asisBorrar(pid,key){
+ const p=PAC.find(x=>x.id==pid);if(!p||!confirm('¿Eliminar este renglón del registro?'))return;
+ p.reg=(p.reg||[]).filter(x=>x.id!=key.slice(1));savePac(p);closeM();render();
+}
+const _modal4=modal;
+modal=function(k,arg){if(k=='asis'){asisModal(arg);return}return _modal4(k,arg)};
 const _vDoc=vDoc;
 vDoc=function(){
  let h=_vDoc();

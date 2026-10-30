@@ -391,8 +391,10 @@ html[data-theme=dark] .sbg{fill:#2a2b33}html[data-theme=dark] .sfg{fill:#5d5e6b}
  async function llamar(fn,args){
   await sesion(false);
   let j;
-  try{const r=await fetch(C.apiUrl,{method:'POST',body:JSON.stringify({tok,fn,args}),redirect:'follow'});j=JSON.parse(await r.text())}
-  catch(e){throw new Error('Sin conexión con el servidor. Revisa tu internet o que la implementación esté publicada como «Nueva versión».')}
+  const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),30000);
+  try{const r=await fetch(C.apiUrl,{method:'POST',body:JSON.stringify({tok,fn,args}),redirect:'follow',signal:ac.signal});j=JSON.parse(await r.text())}
+  catch(e){clearTimeout(tm);throw new Error(e&&e.name=='AbortError'?'El servidor tardó demasiado. Intenta de nuevo en un momento.':'Sin conexión con el servidor. Revisa tu internet o que la implementación esté publicada como «Nueva versión».')}
+  clearTimeout(tm);
   if(j.ok)return j.r;
   if(/^AUTH/.test(j.error||'')){tok=null;exp=0;try{localStorage.removeItem(LS)}catch(e){}
    try{google.accounts.id.disableAutoSelect()}catch(e){}
@@ -838,7 +840,7 @@ function vCob(){
  return `<div class="head"><div><h1>Tus <b>cobros</b></h1><p class="sub">Todos los registros</p></div><button class="btn" onclick="modal('pago')">＋ Registrar pago</button></div>
  <div class="tests" style="margin-bottom:18px"><div class="card"><div class="eyebrow">Cobrado</div><div class="score" style="font-size:38px">${fmt(cobr)}</div></div><div class="card"><div class="eyebrow">Por cobrar</div><div class="score" style="font-size:38px;color:#ff9500">${fmt(pend)}</div></div><div class="card"><div class="eyebrow">Registros</div><div class="score" style="font-size:38px">${PAG.length}</div></div></div>
  <div class="tabs" style="margin-top:0">${['Todos','Pendientes','Pagados'].map(c=>`<button class="${cobFil==c?'on':''}" onclick="cobFil='${c}';render()">${c}</button>`).join('')}</div>
- <div class="card">${lst.map(x=>{const p=PAC.find(q=>q.id==x.p);return `<div class="item">${AV(p)}<div class="txt">${p.n}<small>${x.c} · ${x.f}${x.mt?' · '+x.mt:''}</small></div><b>${fmt(x.m)}</b><span class="chip ${x.e=='Pagado'?'ok':'pend'}">${x.e}</span>${x.e=='Pendiente'?`<button class="btn sm" onclick="pagar(${x.id})">Marcar pagado</button>`:''}</div>`}).join('')||'<p class="sub">Sin movimientos.</p>'}</div>`;
+ <div class="card">${lst.map(x=>{const p=PAC.find(q=>q.id==x.p);return `<div class="item">${AV(p)}<div class="txt">${p.n}<small>${x.c} · ${x.f}${x.mt?' · '+x.mt:''}</small></div><b>${fmt(x.m)}</b><span class="chip ${x.e=='Pagado'?'ok':'pend'}">${x.e}</span>${x.e=='Pendiente'?`<button class="btn sm" onclick="pagar(${x.id})">Marcar pagado</button>`:''}<button class="mini" title="Editar cobro" onclick="modal('cobro',${x.id})">✎</button></div>`}).join('')||'<p class="sub">Sin movimientos.</p>'}</div>`;
 }
 function pagar(id){const x=PAG.find(q=>q.id==id);x.e='Pagado';x.mt='Efectivo';render()}
 function guardarPago(){PAG.unshift({id:Date.now(),p:+$('#pg-p').value,f:'26 oct',c:$('#pg-c').value||'Sesión',m:+$('#pg-m').value||0,e:$('#pg-e').value,mt:$('#pg-t').value});closeM();render()}
@@ -967,7 +969,7 @@ function vAgenda(){
 /* ================= REAL: datos reales, persistencia, fechas, citas, ajustes ================= */
 const API=window.ATRIUM_RUN||null;
 const DEMO=!API;
-let CFG={id:'cfg',nombre:'Víctor Manuel Reyes Flores',titulo:'Psic.',negocio:'Atrium Psicología',cedula:'',domicilio:'',tel:'',email:'',tarifa:0,dur:50,firma:'',pinHash:'',tema:'auto'};
+let CFG={id:'cfg',nombre:'Víctor Manuel Reyes Flores',titulo:'Psic.',negocio:'Atrium Psicología',cedula:'',domicilio:'',tel:'',email:'',tarifa:0,dur:50,firma:'',pinHash:'',tema:'auto',cuotaSes:100,cuotaCanc:50};
 const CIT=[];
 const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 const MESL=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -1297,6 +1299,7 @@ function modal(k,arg){
    <label>Nombre del consultorio</label><input class="f" id="aj-ne" value="${esc(CFG.negocio)}"><label>Cédula profesional</label><input class="f" id="aj-c" value="${esc(CFG.cedula)}">
    <label>Domicilio del consultorio (o "en línea")</label><input class="f" id="aj-d" value="${esc(CFG.domicilio)}"><div style="display:flex;gap:10px"><div style="flex:1"><label>Teléfono</label><input class="f" id="aj-t" inputmode="tel" value="${esc(CFG.tel)}"></div><div style="flex:1"><label>Correo</label><input class="f" id="aj-e" value="${esc(CFG.email)}"></div></div>
    <div style="display:flex;gap:10px"><div style="flex:1"><label>Tarifa por sesión (MXN)</label><input class="f" id="aj-f" type="number" value="${CFG.tarifa||''}"></div><div style="flex:1"><label>Duración (min)</label><input class="f" id="aj-du" type="number" value="${CFG.dur||50}"></div></div>
+   <div style="display:flex;gap:10px"><div style="flex:1"><label>Cuota a la clínica por sesión</label><input class="f" id="aj-cs" type="number" inputmode="decimal" placeholder="0"></div><div style="flex:1"><label>Por cancelación</label><input class="f" id="aj-cc" type="number" inputmode="decimal" placeholder="0"></div></div><p class="sub" style="font-size:12px;margin:4px 0 0">Si pagas una cuota por usar el consultorio. Déjalo en 0 si no aplica.</p>
    <label>Firma (imagen)</label><input type="file" accept="image/*" onchange="firmaCarga(this)" class="f"><img id="fm-prev" alt="" style="display:${CFG.firma?'block':'none'};max-width:200px;margin-top:8px;background:#fff;border-radius:10px;padding:6px" src="${CFG.firma||''}"><button class="btn ghost sm" style="margin-top:8px" onclick="quitarFirma()">Quitar firma</button>
    <button type="button" class="btn ghost sm" style="margin-top:14px" onclick="cerrarSesionGoogle()">Cerrar sesión de Google</button>
    <label>Google Calendar</label><select class="f" id="aj-cal"><option value="off">No sincronizar</option><option value="iniciales">Sincronizar (citas con iniciales, ej. «Cita · C.R.»)</option><option value="generico">Sincronizar (citas solo como «Consulta»)</option></select><button type="button" class="btn ghost sm" style="margin-top:8px" onclick="calTodo()">Enviar mi agenda próxima a Calendar</button><p class="sub" style="font-size:12px;margin-top:6px">Crea el calendario «Atrium · Consulta» en tu cuenta de Google, con alerta 30 min antes de cada cita. Guarda primero y luego usa el botón.</p>
@@ -1676,6 +1679,95 @@ function imprimirHistoria(){
  imprimirHTML(`<div class="paper">${membrete()}<p style="text-align:center;font-weight:700;letter-spacing:.08em;margin:18px 0">HISTORIA CLÍNICA</p><p><b>Paciente:</b> ${esc(p.n)}</p>${HC_CAMPOS.map(([k,l])=>`<p><b>${l}.</b><br>${esc((p.hc&&p.hc[k])||'—')}</p>`).join('')}${firmaHTML()}</div>`);
  setTimeout(()=>window.print(),350);
 }
+
+/* ================= COBROS EDITABLES + CUOTA DE LA CLÍNICA ================= */
+function pagoFecha(g){
+ if(g.fi)return g.fi;
+ const c=g.cita&&CIT.find(x=>x.id==g.cita);if(c)return c.fecha;
+ const m=/^(\d+)\s+(\w+)/.exec(g.f||'');const i=m?MES.indexOf(m[2].toLowerCase()):-1;
+ return i>=0?new Date().getFullYear()+'-'+pad(i+1)+'-'+pad(+m[1]):hoyISO();
+}
+function cobroModal(id){
+ const g=PAG.find(x=>x.id==id);if(!g)return;const p=PAC.find(x=>x.id==g.p);
+ const sel=(i,ops,v)=>`<select class="f" id="${i}">${ops.map(o=>`<option ${o==v?'selected':''}>${o}</option>`).join('')}</select>`;
+ $('#modal').innerHTML=`<h2>Editar cobro</h2><p class="sub">${esc(p?p.n:'')}</p>
+ <label>Concepto</label><input class="f" id="cb-c" value="${esc(g.c||'')}">
+ <div style="display:flex;gap:10px"><div style="flex:1"><label>Monto (MXN)</label><input class="f" id="cb-m" type="number" inputmode="decimal" value="${g.m}"></div><div style="flex:1"><label>Fecha</label><input class="f" id="cb-f" type="date" value="${pagoFecha(g)}"></div></div>
+ <div style="display:flex;gap:10px"><div style="flex:1"><label>Estado</label>${sel('cb-e',['Pagado','Pendiente'],g.e)}</div><div style="flex:1"><label>Método</label>${sel('cb-t',['Efectivo','Transferencia','Tarjeta'],g.mt||'Efectivo')}</div></div>
+ <div class="row" style="justify-content:space-between"><button class="btn ghost sm" style="color:#d70015" onclick="cobroBorrar(${g.id})">Eliminar</button><span style="display:flex;gap:10px"><button class="btn ghost" onclick="closeM()">Cancelar</button><button class="btn" onclick="cobroGuardar(${g.id})">Guardar</button></span></div>`;
+ $('#ov').classList.add('on');
+}
+function cobroGuardar(id){
+ const g=PAG.find(x=>x.id==id);if(!g)return;
+ const m=+$('#cb-m').value;if(!(m>=0)||$('#cb-m').value===''){toast('Escribe el monto',true);return}
+ const fi=$('#cb-f').value||pagoFecha(g);
+ Object.assign(g,{c:$('#cb-c').value.trim()||'Sesión',m,e:$('#cb-e').value,mt:$('#cb-t').value,fi,f:corto(fromISO(fi))});
+ savePago(g);closeM();render();toast('Cobro actualizado');
+}
+function cobroBorrar(id){
+ const g=PAG.find(x=>x.id==id);if(!g||!confirm('¿Eliminar este cobro?'))return;
+ PAG.splice(PAG.indexOf(g),1);if(API)API.apiDelete('pagos',g.id);
+ const c=g.cita&&CIT.find(x=>x.id==g.cita);if(c&&c.pagoId==g.id){delete c.pagoId;saveCita(c)}
+ closeM();render();toast('Cobro eliminado');
+}
+/* ---- cuota de la clínica ---- */
+const cuotaEst=est=>est=='Asistió'?(+CFG.cuotaSes||0):(est=='Canceló'||est=='Faltó')?(+CFG.cuotaCanc||0):0;
+let cuMes={y:new Date().getFullYear(),m:new Date().getMonth()};
+function cuotasLista(){
+ const o=[];
+ CIT.forEach(c=>{if(c.estado!='Completada'&&c.estado!='Cancelada')return;
+  const est=c.rEst||(c.estado=='Completada'?'Asistió':'Canceló'),monto=c.cuota!==undefined?+c.cuota:cuotaEst(est);
+  o.push({key:'c'+c.id,fecha:c.fecha,hora:c.hora,quien:nom(c),est,monto,pag:!!c.cuotaPag,ref:c,def:cuotaEst(est)})});
+ PAC.forEach(p=>(p.reg||[]).forEach(r=>{const monto=r.cuota!==undefined?+r.cuota:cuotaEst(r.est);
+  o.push({key:'m'+p.id+'-'+r.id,fecha:r.fecha,hora:r.hora||'',quien:p.n,est:r.est,monto,pag:!!r.cuotaPag,ref:r,dueño:p,def:cuotaEst(r.est)})}));
+ return o.filter(x=>x.monto>0||x.ref.cuota!==undefined).sort((a,b)=>(a.fecha+a.hora).localeCompare(b.fecha+b.hora));
+}
+const enMes=f=>{const [y,m]=f.split('-').map(Number);return y==cuMes.y&&m==cuMes.m+1};
+function cuNav(d){cuMes.m+=d;if(cuMes.m<0){cuMes.m=11;cuMes.y--}if(cuMes.m>11){cuMes.m=0;cuMes.y++}render()}
+function cuotasHTML(){
+ if(!(+CFG.cuotaSes||+CFG.cuotaCanc))return `<div class="card" style="margin-top:22px"><div class="eyebrow">Cuota de la clínica</div><p class="sub">Si pagas una cuota a la clínica por usar el consultorio, anótala en «Mis datos» y aquí llevarás la cuenta.</p><button class="btn ghost sm" style="margin-top:8px" onclick="modal('ajustes')">Configurar</button></div>`;
+ const todas=cuotasLista(),mes=todas.filter(x=>enMes(x.fecha));
+ const total=mes.reduce((a,x)=>a+x.monto,0),porPagarMes=mes.filter(x=>!x.pag).reduce((a,x)=>a+x.monto,0),porPagarTodo=todas.filter(x=>!x.pag).reduce((a,x)=>a+x.monto,0);
+ const cobrado=PAG.filter(g=>g.e=='Pagado'&&enMes(pagoFecha(g))).reduce((a,g)=>a+g.m,0);
+ const nMes=mes.filter(x=>x.est=='Asistió').length,nCan=mes.length-nMes;
+ return `<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:30px 0 12px"><div><h2 style="font-size:24px;letter-spacing:-.02em">Cuota de la <span style="color:var(--azul)">clínica</span></h2><p class="sub">${fmt(+CFG.cuotaSes||0)} por sesión · ${fmt(+CFG.cuotaCanc||0)} por cancelación</p></div>
+  <span class="arrows" style="display:flex;gap:6px;align-items:center"><button class="btn ghost sm" onclick="cuNav(-1)">‹</button><b style="min-width:120px;text-align:center">${MESL[cuMes.m].replace(/^./,x=>x.toUpperCase())} ${cuMes.y}</b><button class="btn ghost sm" onclick="cuNav(1)">›</button></span></div>
+ <div class="tests" style="margin-bottom:14px"><div class="card"><div class="eyebrow">Cobrado en el mes</div><div class="score" style="font-size:32px">${fmt(cobrado)}</div></div><div class="card"><div class="eyebrow">Cuotas de la clínica</div><div class="score" style="font-size:32px;color:#ff9500">${fmt(total)}</div><small class="sub">${nMes} sesión${nMes==1?'':'es'} · ${nCan} cancelación${nCan==1?'':'es'}</small></div><div class="card"><div class="eyebrow">Ganancia neta</div><div class="score" style="font-size:32px;color:var(--verde)">${fmt(cobrado-total)}</div></div></div>
+ <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px"><div class="eyebrow" style="margin:0">Por pagar a la clínica: <b style="color:#ff9500">${fmt(porPagarTodo)}</b>${porPagarMes!=porPagarTodo?` <small class="sub">(${fmt(porPagarMes)} de este mes)</small>`:''}</div>${porPagarMes?`<button class="btn sm" onclick="cuotasPagarMes()">Marcar el mes como pagado</button>`:''}</div>
+ ${mes.map(x=>`<div class="item"><div class="txt">${esc(x.quien)}<small>${f2(x.fecha)}${x.hora?' · '+h12(x.hora):''} · ${x.est=='Asistió'?'Sesión':x.est=='Faltó'?'Falta':'Cancelación'}</small></div><b>${fmt(x.monto)}</b><span class="chip ${x.pag?'ok':'pend'}">${x.pag?'Pagada':'Pendiente'}</span><button class="mini" title="Editar" onclick="modal('cuota','${x.key}')">✎</button></div>`).join('')||'<p class="sub">Sin sesiones ni cancelaciones este mes.</p>'}</div>`;
+}
+function cuotaModal(key){
+ const x=cuotasLista().find(q=>q.key==key);if(!x)return;
+ $('#modal').innerHTML=`<h2>Cuota de la clínica</h2><p class="sub">${esc(x.quien)} · ${f2(x.fecha)}</p>
+ <label>Monto (MXN)</label><input class="f" id="cu-m" type="number" inputmode="decimal" value="${x.monto}"><p class="sub" style="font-size:12px;margin-top:4px">Normalmente ${fmt(x.def)}. Cámbialo solo si esta vez fue distinto.</p>
+ <label style="text-transform:none;display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="cu-p" ${x.pag?'checked':''}> Ya se pagó a la clínica</label>
+ <div class="row" style="justify-content:space-between"><button class="btn ghost sm" onclick="cuotaGuardar('${key}',true)">Restablecer monto</button><span style="display:flex;gap:10px"><button class="btn ghost" onclick="closeM()">Cancelar</button><button class="btn" onclick="cuotaGuardar('${key}')">Guardar</button></span></div>`;
+ $('#ov').classList.add('on');
+}
+function cuotaSave(x){if(x.dueño)savePac(x.dueño);else saveCita(x.ref)}
+function cuotaGuardar(key,reset){
+ const x=cuotasLista().find(q=>q.key==key);if(!x)return;
+ if(reset)delete x.ref.cuota;else{const v=$('#cu-m').value;if(v===''){toast('Escribe el monto',true);return}x.ref.cuota=+v}
+ x.ref.cuotaPag=$('#cu-p').checked;cuotaSave(x);closeM();render();toast('Cuota actualizada');
+}
+function cuotasPagarMes(){
+ const l=cuotasLista().filter(x=>enMes(x.fecha)&&!x.pag);if(!l.length)return;
+ if(!confirm(`¿Marcar ${l.length} cuota${l.length>1?'s':''} de este mes como pagada${l.length>1?'s':''} a la clínica?`))return;
+ const vistos=new Set();l.forEach(x=>{x.ref.cuotaPag=true;if(x.dueño){if(!vistos.has(x.dueño.id)){vistos.add(x.dueño.id);savePac(x.dueño)}}else saveCita(x.ref)});
+ render();toast('Cuotas marcadas como pagadas');
+}
+const _vCob=vCob;
+vCob=function(){return _vCob()+cuotasHTML()};
+const _modal5=modal;
+modal=function(k,arg){
+ if(k=='cobro'){cobroModal(arg);return}
+ if(k=='cuota'){cuotaModal(arg);return}
+ const r=_modal5(k,arg);
+ if(k=='ajustes'){const a=document.getElementById('aj-cs');if(a){a.value=CFG.cuotaSes!==undefined?CFG.cuotaSes:100;document.getElementById('aj-cc').value=CFG.cuotaCanc!==undefined?CFG.cuotaCanc:50}}
+ return r;
+};
+const _ga3=guardarAjustes;
+guardarAjustes=async function(){const a=document.getElementById('aj-cs'),c=document.getElementById('aj-cc'),vs=a?a.value:null,vc=c?c.value:null;await _ga3();if(vs!==null){CFG.cuotaSes=+vs||0;CFG.cuotaCanc=+vc||0;saveCfg();render()}};
 
 if(!DEMO){document.querySelector('.banner').remove();document.body.classList.add('real')}
 cargar(()=>{setTheme(CFG.tema=='dark'?'dark':CFG.tema=='light'?'light':(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));const l=$('#loader');if(l)l.remove();resetIdle();applyLogo();render();guiaInicio()});

@@ -1810,6 +1810,32 @@ function citaBorrar(id){
 const _modal6=modal;
 modal=function(k,arg){if(k=='citaEdit'){citaEditModal(arg);return}return _modal6(k,arg)};
 
+/* ================= CITAS PASADAS SIN CERRAR ================= */
+const citaFin=c=>{const [y,m,d]=c.fecha.split('-').map(Number),[h,mi]=(c.hora||'0:0').split(':').map(Number);return new Date(y,m-1,d,h,mi+(+c.dur||50))};
+const porCerrar=()=>{const n=new Date();return CIT.filter(c=>(c.estado=='Programada'||c.estado=='Confirmada')&&citaFin(c)<n).sort(byHora)};
+function cerrarCita(id,est){
+ citaAct(id,est);
+ toast(est=='Completada'?'Sesión registrada. Revisa el cobro y la nota':'Cita marcada como cancelada');
+}
+const _vHoy2=vHoy;
+vHoy=function(){
+ let h=_vHoy2();const l=porCerrar();
+ if(l.length){
+  const it=l.slice(0,8).map(c=>`<div class="item"><span class="dot r"></span><div class="txt">¿Se realizó la sesión?<small>${esc(nom(c))} · ${f2(c.fecha)} · ${h12(c.hora)}</small></div><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn sm" onclick="cerrarCita(${c.id},'Completada')">Sí, se realizó</button><button class="btn ghost sm" onclick="cerrarCita(${c.id},'Cancelada')">Canceló</button></span></div>`).join('');
+  h=h.replace('<div class="eyebrow">Pendientes</div>','<div class="eyebrow">Pendientes</div>'+it).replace('<p class="sub">Todo al día.</p>','');
+ }
+ return h;
+};
+const _gc2=guardarCita;
+guardarCita=function(){
+ const antes=new Set(CIT.map(c=>c.id));_gc2();
+ const nuevas=CIT.filter(c=>!antes.has(c.id)&&citaFin(c)<new Date());
+ if(!nuevas.length)return;
+ if(confirm(`${nuevas.length>1?'Estas citas ya pasaron':'Esa cita ya pasó'}. ¿Se ${nuevas.length>1?'realizaron':'realizó'}?\n\nAceptar: se marca como realizada y se registra el cobro.\nCancelar: queda pendiente en «Hoy» para decidir después.`)){
+  nuevas.forEach(c=>citaAct(c.id,'Completada'));toast('Registrada como realizada. Revisa el cobro y la nota en «Hoy»');
+ }else toast('Queda pendiente en «Hoy» para cerrarla');
+};
+
 if(!DEMO){document.querySelector('.banner').remove();document.body.classList.add('real')}
 cargar(()=>{setTheme(CFG.tema=='dark'?'dark':CFG.tema=='light'?'light':(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));const l=$('#loader');if(l)l.remove();resetIdle();applyLogo();render();guiaInicio()});
 

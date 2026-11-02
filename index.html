@@ -1011,7 +1011,7 @@ function hid(p){
  const def=(k,g)=>Object.defineProperty(p,k,{get:g,enumerable:false,configurable:true});
  def('ini',()=>(p.n||'?').trim()[0].toUpperCase());
  def('n_ses',()=>p.notas.length+(p.sesPrev||0));
- def('prox',()=>{const c=proxCita(p.id);if(!c)return '—';const d=fromISO(c.fecha);return `${DIAS[d.getDay()].slice(0,3)} ${d.getDate()} ${MES[d.getMonth()]} · ${c.hora}`});
+ def('prox',()=>{const c=proxCita(p.id);if(!c)return '—';const d=fromISO(c.fecha);return `${DIAS[d.getDay()].slice(0,3)} ${d.getDate()} ${MES[d.getMonth()]} · ${h12(c.hora)}`});
  return p;
 }
 const byHora=(a,b)=>(a.fecha+a.hora).localeCompare(b.fecha+b.hora);
@@ -1073,7 +1073,7 @@ function waURL(tel,msg){let d=(tel||'').replace(/\D/g,'');if(d.length==10)d='52'
 function abrir(url){window.open(url,'_blank','noopener')}
 function waCita(id){
  const c=CIT.find(x=>x.id==id),p=PAC.find(x=>x.id==c.pid);if(!p||!p.tel){toast('El paciente no tiene teléfono');return}
- const msg=`Hola ${primer(p.n)}, le recuerdo su cita en ${CFG.negocio} el ${larga(fromISO(c.fecha))} a las ${c.hora}. ¿Me confirma su asistencia, por favor?`;
+ const msg=`Hola ${primer(p.n)}, le recuerdo su cita en ${CFG.negocio} el ${larga(fromISO(c.fecha))} a las ${h12(c.hora)}. ¿Me confirma su asistencia, por favor?`;
  c.rec=true;saveCita(c);abrir(waURL(p.tel,msg));
 }
 function gcal(id){
@@ -1108,7 +1108,7 @@ function vHoy(){
  const lst=activas(hoyISO());
  const s=lst.map(c=>{const ch=c.estado=='Completada'?'<span class="chip ok">Hecha</span>':c.estado=='Confirmada'?'<span class="chip ok">Confirmó</span>':'<span class="chip pend">Por confirmar</span>';
   const btn=(c.estado=='Programada'||c.estado=='Confirmada')?`<button class="btn ghost sm" onclick="citaAct(${c.id},'Completada')">Completar</button>`:'';
-  return `<div class="ses"><div class="h">${c.hora}</div><div><div class="n">${esc(nom(c))}</div><div class="t">${esc(c.tipo||'')} · ${c.dur||50} min</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">${ch}${btn}</div></div>`}).join('');
+  return `<div class="ses"><div class="h">${h12h(c.hora)}</div><div><div class="n">${esc(nom(c))}</div><div class="t">${esc(c.tipo||'')} · ${c.dur||50} min</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">${ch}${btn}<button class="mini" title="Editar cita" onclick="modal('citaEdit',${c.id})">✎</button></div></div>`}).join('');
  const al=alertas().map(a=>`<div class="alert" style="margin-bottom:12px"><span style="font-size:22px">⚠️</span><div style="flex:1"><b>${esc(a.p.n)} · ${a.r.t} (${a.r.f}).</b> ${a.r.flag}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost sm" onclick="go('pac');pacSel=${a.p.id};tab='Pruebas';render()">Ver</button><button class="btn ghost sm" onclick="abrirPlan(${a.p.id})">Plan de seguridad</button><button class="btn sm" onclick="revisado(${a.p.id},${a.i})">Revisado</button></div></div>`).join('');
  const pend=PAG.filter(x=>x.e=='Pendiente'),sinC=activos().filter(p=>!p.cons);
  const sinNota=CIT.filter(c=>c.estado=='Completada'&&!c.notaHecha).sort(byHora).slice(-3);
@@ -1145,7 +1145,7 @@ function dayHTML(f){
   const act=(c.estado=='Programada'||c.estado=='Confirmada');
   const ch=c.estado=='Completada'?'<span class="chip ok">Hecha</span>':c.estado=='Cancelada'?'<span class="chip red">Cancelada</span>':c.estado=='Confirmada'?'<span class="chip ok">Confirmó</span>':'<span class="chip pend">Por confirmar</span>';
   const acts=act?`${c.pid?`<button class="btn wa sm" onclick="modal('wa',{pid:${c.pid},cid:${c.id},pl:'recordatorio'})">${IC.wa} Mensaje</button>`:''}${c.estado=='Programada'?`<button class="btn ghost sm" onclick="citaAct(${c.id},'Confirmada')">Confirmó</button>`:''}<button class="btn ghost sm" onclick="citaAct(${c.id},'Completada')">Completar</button><button class="btn ghost sm" onclick="gcal(${c.id})">Calendar</button><button class="btn ghost sm" onclick="citaAct(${c.id},'Cancelada')">Cancelar</button>`:c.estado=='Completada'?(c.notaHecha?'':`<button class="btn ghost sm" onclick="pacSel=${c.pid||'null'};notaCita=${c.id};modal('nota')">Escribir nota</button>`):`<button class="btn ghost sm" onclick="citaAct(${c.id},'Programada')">Reactivar</button>`;
-  return `<div class="cita ${c.estado=='Cancelada'?'canc':''}"><div class="ses"><div class="h">${c.hora}</div><div><div class="n">${esc(nom(c))}</div><div class="t">${esc(c.tipo||'')} · ${c.dur||50} min</div></div><div>${ch}</div></div><div class="acts">${acts}</div></div>`}).join('');
+  return `<div class="cita ${c.estado=='Cancelada'?'canc':''}"><div class="ses"><div class="h">${h12h(c.hora)}</div><div><div class="n">${esc(nom(c))}</div><div class="t">${esc(c.tipo||'')} · ${c.dur||50} min</div></div><div>${ch}</div></div><div class="acts">${acts}<button class="btn ghost sm" onclick="modal('citaEdit',${c.id})">✎ Editar</button></div></div>`}).join('');
  const d=fromISO(f);
  return `<div class="eyebrow">${DIAS[d.getDay()]} ${d.getDate()} de ${MESL[d.getMonth()]}</div>${items||'<p class="sub">Día libre. Un buen espacio para respirar.</p>'}<button class="btn ghost sm" style="margin-top:14px" onclick="modal('cita')">＋ Agregar a este día</button>`;
 }
@@ -1266,7 +1266,7 @@ function respaldoHTML(pid){
  const cob=PAG.filter(g=>pid=='todo'||g.p==pid);
  return `<div class="paper rspw">${membrete()}<p style="text-align:center;font-weight:700;letter-spacing:.08em;margin:12px 0">RESPALDO · ${hoyLargo().toUpperCase()}</p>${lista.map(sec).join('')}
  ${cob.length?`<section class="rsp"><h2>Cobros</h2><ul>${cob.map(g=>{const p=PAC.find(x=>x.id==g.p);return `<li>${esc(g.f)} · ${esc(p?p.n:'—')} · ${esc(g.c)} · ${fmt(g.m)} · ${g.e}</li>`}).join('')}</ul></section>`:''}
- ${pid=='todo'?`<section class="rsp"><h2>Citas</h2><ul>${CIT.slice().sort(byHora).map(c=>`<li>${c.fecha} ${c.hora} · ${esc(nom(c))} · ${esc(c.tipo||'')} · ${c.estado}</li>`).join('')}</ul></section>`:''}</div>`;
+ ${pid=='todo'?`<section class="rsp"><h2>Citas</h2><ul>${CIT.slice().sort(byHora).map(c=>`<li>${c.fecha} ${h12(c.hora)} · ${esc(nom(c))} · ${esc(c.tipo||'')} · ${c.estado}</li>`).join('')}</ul></section>`:''}</div>`;
 }
 function imprimirRespaldo(){const v=$('#rs-p').value;closeM();imprimirHTML(respaldoHTML(v))}
 function descargarJSON(){
@@ -1283,7 +1283,7 @@ function modal(k,arg){
  const man=new Date();man.setDate(man.getDate()+1);
  const M={
   nota:`<h2>Nota de sesión</h2><label>Paciente</label>${selP('nt-p')}<label>Formato</label><select class="f" id="nt-f" onchange="notaFields(this.value)">${Object.keys(NOTA_F).map(f=>`<option>${f}</option>`).join('')}</select><div id="nf"></div><p class="sub" style="font-size:12px;margin-top:10px">Para dictar, usa el micrófono del teclado de tu celular o computadora.</p>`,
-  cita:`<h2>Nueva cita</h2><label>Paciente</label><input class="f" id="ci-n" list="pl" placeholder="Escribe o elige…" value="${esc(arg?((PAC.find(x=>x.id==arg)||{}).n||''):'')}"><datalist id="pl">${activos().map(p=>`<option>${esc(p.n)}</option>`).join('')}</datalist><div style="display:flex;gap:10px"><div style="flex:1"><label>Fecha</label><input class="f" id="ci-f" type="date" value="${selDate}"></div><div style="flex:1"><label>Hora</label><input class="f" id="ci-h" type="time" value="10:00"></div></div><div style="display:flex;gap:10px"><div style="flex:1"><label>Tipo</label><select class="f" id="ci-t"><option>Seguimiento</option><option>Primera vez</option><option>Evaluación</option><option>Otro</option></select></div><div style="flex:1"><label>Duración (min)</label><input class="f" id="ci-d" type="number" value="${CFG.dur||50}"></div></div><label>Repetir</label><select class="f" id="ci-r"><option value="1">No repetir</option><option value="4">Cada semana · 4 veces</option><option value="8">Cada semana · 8 veces</option></select><p class="sub" style="font-size:12px;margin-top:8px">Si el nombre no está en tu lista, se agenda como persona nueva.</p>`,
+  cita:`<h2>Nueva cita</h2><label>Paciente</label><input class="f" id="ci-n" list="pl" placeholder="Escribe o elige…" value="${esc(arg?((PAC.find(x=>x.id==arg)||{}).n||''):'')}"><datalist id="pl">${activos().map(p=>`<option>${esc(p.n)}</option>`).join('')}</datalist><div style="display:flex;gap:10px"><div style="flex:1"><label>Fecha</label><input class="f" id="ci-f" type="date" value="${selDate}"></div><div style="flex:1"><label>Hora</label>${hSel('ci-h','10:00')}</div></div><div style="display:flex;gap:10px"><div style="flex:1"><label>Tipo</label><select class="f" id="ci-t"><option>Seguimiento</option><option>Primera vez</option><option>Evaluación</option><option>Otro</option></select></div><div style="flex:1"><label>Duración (min)</label><input class="f" id="ci-d" type="number" value="${CFG.dur||50}"></div></div><label>Repetir</label><select class="f" id="ci-r"><option value="1">No repetir</option><option value="4">Cada semana · 4 veces</option><option value="8">Cada semana · 8 veces</option></select><p class="sub" style="font-size:12px;margin-top:8px">Si el nombre no está en tu lista, se agenda como persona nueva.</p>`,
   pac:`<h2>${arg?'Editar datos':'Nuevo paciente'}</h2><input type="hidden" id="np-id" value="${arg||''}"><label>Nombre</label><input class="f" id="np-n" value="${esc(arg?pa.n:'')}"><label>Teléfono (WhatsApp)</label><input class="f" id="np-t" inputmode="tel" value="${esc(arg?pa.tel:'')}"><label>Correo</label><input class="f" id="np-c" value="${esc(arg?pa.mail:'')}"><label>Responsable / tutor (si aplica)</label><input class="f" id="np-tu" placeholder="Ej. Karla (mamá)" value="${esc(arg?(pa.tutor||''):'')}"><label>Motivo de consulta</label><textarea id="np-m">${esc(arg&&pa.mot!='Por definir'?pa.mot:'')}</textarea><label>Tarifa por sesión (MXN, opcional)</label><input class="f" id="np-f" type="number" value="${arg&&pa.tarifa?pa.tarifa:''}" placeholder="${CFG.tarifa||''}">`,
   aplicar:`<h2>Aplicar prueba</h2><p class="sub">Se califica sola y el resultado queda en el expediente.</p><label>Paciente</label>${selP('sel-pac')}<label>Prueba</label><select class="f" id="sel-test">${Object.values(TESTS).map(T=>`<option value="${T.id}" ${T.id==arg?'selected':''}>${esc(T.titulo)} · ${esc(T.sub)}</option>`).join('')}</select>`,
   propia:`<h2>Prueba propia</h2><p class="sub">Escribe tus propios reactivos, uno por línea.</p><label>Nombre</label><input class="f" id="pp-n"><label>Opciones de respuesta</label><select class="f" id="pp-e"><option value="f">Frecuencia: Ningún día · Varios días · … (0–3)</option><option value="i">Intensidad: Nada · Un poco · … (0–4)</option><option value="s">Sí / No (0–1)</option></select><label>Reactivos</label><textarea id="pp-i" style="min-height:140px"></textarea>`,
@@ -1293,7 +1293,7 @@ function modal(k,arg){
   obj:`<h2>Nuevo objetivo</h2><p class="sub">${esc(pa.n||'')}</p><label>Objetivo</label><textarea id="ob-t"></textarea>`,
   tarea:`<h2>Nueva tarea</h2><p class="sub">${esc(pa.n||'')}</p><label>Tarea</label><textarea id="ta-t"></textarea>`,
   ficha:`<h2>Ficha para el paciente</h2><label>Ficha</label><select class="f" id="fi-k">${Object.keys(FICHAS).map(k=>`<option value="${k}" ${k==arg?'selected':''}>${FICHAS[k].t}</option>`).join('')}</select><label>Paciente</label>${selP('fi-p')}<div class="row" style="justify-content:flex-start;margin-top:14px"><button class="btn wa" onclick="enviarFicha()">${IC.wa} Enviar por WhatsApp</button><button class="btn ghost" onclick="imprimirFicha()">Imprimir</button></div>`,
-  recs:`<h2>Recordatorios de mañana</h2><p class="sub">Se abre WhatsApp con el mensaje listo; solo falta enviarlo.</p>${activas(iso(man)).filter(c=>c.pid).map(c=>`<div class="item"><div class="txt">${esc(nom(c))}<small>${c.hora}${c.rec?' · ya enviado':''}</small></div><button class="btn wa sm" onclick="waCita(${c.id})">${IC.wa}</button></div>`).join('')||'<p class="sub">Sin citas mañana.</p>'}`,
+  recs:`<h2>Recordatorios de mañana</h2><p class="sub">Se abre WhatsApp con el mensaje listo; solo falta enviarlo.</p>${activas(iso(man)).filter(c=>c.pid).map(c=>`<div class="item"><div class="txt">${esc(nom(c))}<small>${h12(c.hora)}${c.rec?' · ya enviado':''}</small></div><button class="btn wa sm" onclick="waCita(${c.id})">${IC.wa}</button></div>`).join('')||'<p class="sub">Sin citas mañana.</p>'}`,
   ajustes:`<h2>Mis datos</h2><p class="sub">Se usan en el membrete de tus documentos.</p>
    <div style="display:flex;gap:10px"><div style="width:90px"><label>Título</label><input class="f" id="aj-ti" value="${esc(CFG.titulo)}"></div><div style="flex:1"><label>Nombre</label><input class="f" id="aj-n" value="${esc(CFG.nombre)}"></div></div>
    <label>Nombre del consultorio</label><input class="f" id="aj-ne" value="${esc(CFG.negocio)}"><label>Cédula profesional</label><input class="f" id="aj-c" value="${esc(CFG.cedula)}">
@@ -1330,7 +1330,7 @@ const PLANT={
 let WA={pid:null,cid:null};
 const plRaw=k=>(CFG.plantillas&&CFG.plantillas[k])||PLANT[k].t;
 function plFill(t,p,c){
- const f=c?larga(fromISO(c.fecha)):'[fecha]',h=c?c.hora:'[hora]';
+ const f=c?larga(fromISO(c.fecha)):'[fecha]',h=c?h12(c.hora):'[hora]';
  const tar=(p&&p.tareas.filter(x=>!x[1]).map((x,i)=>`${i+1}. ${x[0]}`).join('\n'))||'(sin tareas pendientes)';
  const m=tarifaDe(p);
  const V={nombre:primer(p&&p.n),fecha:f,hora:h,consultorio:CFG.negocio,domicilio:CFG.domicilio||'[domicilio]',monto:m?fmt(m):'[monto]',dur:CFG.dur||50,tareas:tar,yo:CFG.titulo+' '+CFG.nombre};
@@ -1417,7 +1417,7 @@ function choque(f,hora,dur,soloCitas){
 }
 function bloqStrip(f){
  const l=bloqDe(f);if(!l.length)return '';
- return l.map(b=>`<div class="bloq"><span class="bt">${b.todoDia?'Todo el día':b.hora+'–'+hm(mn(b.hora)+b.dur)}</span><b>${esc(b.titulo)}</b><span class="bx">${b.gid?`<button class="btn ghost sm" onclick="delBloq(${b.id},true)">Quitar serie</button>`:''}<button class="btn ghost sm" onclick="delBloq(${b.id})">Quitar</button></span></div>`).join('');
+ return l.map(b=>`<div class="bloq"><span class="bt">${b.todoDia?'Todo el día':h12(b.hora)+' – '+h12(hm(mn(b.hora)+b.dur))}</span><b>${esc(b.titulo)}</b><span class="bx">${b.gid?`<button class="btn ghost sm" onclick="delBloq(${b.id},true)">Quitar serie</button>`:''}<button class="btn ghost sm" onclick="delBloq(${b.id})">Quitar</button></span></div>`).join('');
 }
 function delBloq(id,serie){
  const b=BLQ.find(x=>x.id==id);if(!b)return;
@@ -1432,7 +1432,7 @@ function bloqModal(fecha){
  <div class="chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${BL_PRE.map(x=>`<button type="button" class="btn ghost sm" onclick="document.getElementById('bl-t').value='${x}'">${x}</button>`).join('')}</div>
  <label>Fecha</label><input class="f" id="bl-f" type="date" value="${fecha||selDate}">
  <label style="text-transform:none;display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="bl-td" onchange="document.getElementById('bl-hh').style.display=this.checked?'none':'flex'"> Todo el día</label>
- <div id="bl-hh" style="display:flex;gap:10px"><div style="flex:1"><label>Desde</label><input class="f" id="bl-i" type="time" value="14:00"></div><div style="flex:1"><label>Hasta</label><input class="f" id="bl-e" type="time" value="15:00"></div></div>
+ <div id="bl-hh" style="display:flex;gap:10px"><div style="flex:1"><label>Desde</label>${hSel('bl-i','14:00')}</div><div style="flex:1"><label>Hasta</label>${hSel('bl-e','15:00')}</div></div>
  <label>Repetir</label><div style="display:flex;gap:10px"><select class="f" id="bl-r" style="flex:2"><option value="no">No repetir</option><option value="sem">Cada semana</option><option value="lab">De lunes a viernes</option></select><input class="f" id="bl-n" type="number" min="1" max="52" value="4" style="flex:1" title="Semanas"></div><p class="sub" style="font-size:12px;margin-top:6px">El número es cuántas semanas se repite.</p>
  <div class="row"><button class="btn ghost" onclick="closeM()">Cancelar</button><button class="btn" onclick="guardarBloq()">Bloquear</button></div>`;
  $('#ov').classList.add('on');
@@ -1634,7 +1634,7 @@ function asisModal(arg){
  const f=arg.key?asisFilas(p).find(x=>x.key==arg.key):null,auto=f&&f.src=='c';
  const sel=(id,ops,v)=>`<select class="f" id="${id}">${ops.map(o=>`<option ${o==v?'selected':''}>${o}</option>`).join('')}</select>`;
  $('#modal').innerHTML=`<h2>${f?'Editar renglón':'Agregar sesión'}</h2><p class="sub">${esc(p.n)}${auto?' · viene de tu agenda: la fecha y la hora se cambian en la cita':''}</p>
- <div style="display:flex;gap:10px"><div style="flex:1"><label>Fecha</label><input class="f" id="as-f" type="date" value="${f?f.fecha:hoyISO()}" ${auto?'disabled':''}></div><div style="flex:1"><label>Hora</label><input class="f" id="as-h" type="time" value="${f?f.hora:'17:00'}" ${auto?'disabled':''}></div></div>
+ <div style="display:flex;gap:10px"><div style="flex:1"><label>Fecha</label><input class="f" id="as-f" type="date" value="${f?f.fecha:hoyISO()}" ${auto?'disabled':''}></div><div style="flex:1"><label>Hora</label>${hSel('as-h',f?f.hora:'17:00',auto)}</div></div>
  <div style="display:flex;gap:10px"><div style="flex:1"><label>Estatus</label>${sel('as-e',['Asistió','Canceló','Faltó'],f?f.est:'Asistió')}</div><div style="flex:1"><label>Pago</label>${sel('as-p',['Pagado','Pendiente','—'],f?f.pago:'Pagado')}</div></div>
  <label>Notas</label><textarea id="as-n" style="min-height:70px" placeholder="Ej. Primera sesión. Cita adelantada a petición de la mamá.">${esc(f?f.nota:'')}</textarea>
  <div class="row" style="justify-content:space-between">${f&&!auto?`<button class="btn ghost sm" style="color:#d70015" onclick="asisBorrar(${p.id},'${arg.key}')">Eliminar</button>`:'<span></span>'}<span style="display:flex;gap:10px"><button class="btn ghost" onclick="closeM()">Cancelar</button><button class="btn" onclick="asisGuardar(${p.id},${f?`'${arg.key}'`:'null'})">Guardar</button></span></div>`;
@@ -1768,6 +1768,47 @@ modal=function(k,arg){
 };
 const _ga3=guardarAjustes;
 guardarAjustes=async function(){const a=document.getElementById('aj-cs'),c=document.getElementById('aj-cc'),vs=a?a.value:null,vc=c?c.value:null;await _ga3();if(vs!==null){CFG.cuotaSes=+vs||0;CFG.cuotaCanc=+vc||0;saveCfg();render()}};
+
+/* ================= AGENDA: EDITAR CITAS + HORA DE 12 H ================= */
+function hSel(id,val,dis){
+ let [H,M]=(val||'').split(':').map(Number);const vacio=!val||isNaN(H);if(vacio){H=10;M=0}
+ const ap=H>=12?'pm':'am',h=H%12||12,d=dis?'disabled':'';
+ const ms=[];for(let i=0;i<60;i+=5)ms.push(i);if(!ms.includes(M))ms.push(M);ms.sort((a,b)=>a-b);
+ const o=(a,v)=>a.map(x=>`<option value="${x[0]}" ${x[0]==v?'selected':''}>${x[1]}</option>`).join('');
+ return `<span style="display:flex;gap:6px"><select class="f" id="${id}-h" onchange="hSync('${id}')" ${d} style="padding-left:10px;padding-right:6px">${o([...Array(12)].map((_,i)=>[i+1,i+1]),h)}</select><select class="f" id="${id}-m" onchange="hSync('${id}')" ${d} style="padding-left:10px;padding-right:6px">${o(ms.map(m=>[m,pad(m)]),M)}</select><select class="f" id="${id}-p" onchange="hSync('${id}')" ${d} style="padding-left:10px;padding-right:6px">${o([['am','am'],['pm','pm']],ap)}</select><input type="hidden" id="${id}" value="${vacio?'10:00':pad(H)+':'+pad(M)}"></span>`;
+}
+function hSync(id){
+ const h=+document.getElementById(id+'-h').value%12,m=+document.getElementById(id+'-m').value,p=document.getElementById(id+'-p').value;
+ document.getElementById(id).value=pad(h+(p=='pm'?12:0))+':'+pad(m);
+}
+const h12h=h=>{const s=h12(h);const i=s.indexOf(' ');return s.slice(0,i)+'<small style="display:block;font-size:11px;font-weight:600;opacity:.65;margin-top:1px">'+s.slice(i+1)+'</small>'};
+function citaEditModal(id){
+ const c=CIT.find(x=>x.id==id);if(!c)return;
+ const tipos=['Seguimiento','Primera vez','Evaluación','Otro'];if(c.tipo&&!tipos.includes(c.tipo))tipos.push(c.tipo);
+ $('#modal').innerHTML=`<h2>Editar cita</h2><p class="sub">${esc(nom(c))}</p>
+ <div style="display:flex;gap:10px;flex-wrap:wrap"><div style="flex:1;min-width:150px"><label>Fecha</label><input class="f" id="ce-f" type="date" value="${c.fecha}"></div><div style="flex:1;min-width:190px"><label>Hora</label>${hSel('ce-h',c.hora)}</div></div>
+ <div style="display:flex;gap:10px"><div style="flex:1"><label>Tipo</label><select class="f" id="ce-t">${tipos.map(t=>`<option ${t==c.tipo?'selected':''}>${esc(t)}</option>`).join('')}</select></div><div style="flex:1"><label>Duración (min)</label><input class="f" id="ce-d" type="number" value="${c.dur||50}"></div></div>
+ <div class="row" style="justify-content:space-between"><button class="btn ghost sm" style="color:#d70015" onclick="citaBorrar(${c.id})">Eliminar</button><span style="display:flex;gap:10px"><button class="btn ghost" onclick="closeM()">Cancelar</button><button class="btn" onclick="citaEditGuardar(${c.id})">Guardar</button></span></div>`;
+ $('#ov').classList.add('on');
+}
+function citaEditGuardar(id){
+ const c=CIT.find(x=>x.id==id);if(!c)return;
+ const fecha=$('#ce-f').value,hora=$('#ce-h').value,dur=+$('#ce-d').value||50;
+ if(!fecha||!hora){toast('Falta fecha u hora',true);return}
+ const ant=c.estado;c.estado='Cancelada';const ch=choque(fecha,hora,dur);c.estado=ant;
+ if(ch.length&&!confirm('Ese horario se cruza con:\n'+ch.join('\n')+'\n¿Guardar de todos modos?'))return;
+ Object.assign(c,{fecha,hora,dur,tipo:$('#ce-t').value});
+ saveCita(c);selDate=fecha;const d=fromISO(fecha);calY=d.getFullYear();calM=d.getMonth();
+ closeM();render();toast('Cita actualizada');
+}
+function citaBorrar(id){
+ const c=CIT.find(x=>x.id==id);if(!c||!confirm('¿Eliminar esta cita? No se puede deshacer.'))return;
+ if(c.gcal){c.estado='Cancelada';c._del=true;calSync(c,'cita')}
+ CIT.splice(CIT.indexOf(c),1);if(API)API.apiDelete('citas',c.id);
+ closeM();render();toast('Cita eliminada');
+}
+const _modal6=modal;
+modal=function(k,arg){if(k=='citaEdit'){citaEditModal(arg);return}return _modal6(k,arg)};
 
 if(!DEMO){document.querySelector('.banner').remove();document.body.classList.add('real')}
 cargar(()=>{setTheme(CFG.tema=='dark'?'dark':CFG.tema=='light'?'light':(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));const l=$('#loader');if(l)l.remove();resetIdle();applyLogo();render();guiaInicio()});

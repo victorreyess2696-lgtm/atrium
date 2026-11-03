@@ -338,6 +338,50 @@ html[data-theme=dark] .sbg{fill:#2a2b33}html[data-theme=dark] .sfg{fill:#5d5e6b}
 @page{size:Letter;margin:12mm}
 .mini{width:26px;height:26px;border-radius:50%;background:var(--fill);color:var(--azul);font-size:13px}.asis .reg td.ac,.asis .reg th.ac{width:36px;text-align:center;border:0!important;background:none!important;padding:0 0 0 6px}
 @media print{.paper.asis,.apl .paper.asis{padding:0!important;max-width:none!important;width:100%!important;box-sizing:border-box;box-shadow:none!important;overflow:visible!important}.asis .reg,.asis .info{width:100%!important;table-layout:fixed}.asis .reg td.nt{min-width:0!important}.asis .reg th:nth-child(1),.asis .reg td.n{width:30px}.asis .reg th:nth-child(2){width:96px}.asis .reg th:nth-child(3){width:64px}.asis .reg th:nth-child(4){width:64px}.asis .reg th:nth-child(5){width:70px}.asis .reg td.nt:focus{outline:none;background:none}.apl-in{max-width:none!important;width:100%!important;padding:0!important}}
+.vt{display:inline-flex;background:var(--fill);border-radius:999px;padding:3px;margin:0 0 12px;gap:2px}
+.vt button{padding:6px 16px;border-radius:999px;font-size:13px;font-weight:600;color:var(--tinta2)}
+.vt button.on{background:var(--panel,#fff);color:var(--tinta);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.cal .d.big{aspect-ratio:auto;min-height:104px;justify-content:flex-start;gap:4px;padding:6px 5px;align-items:stretch;border-radius:14px}
+.cal .d.big>span:first-child{padding-left:3px}
+.evs{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ev{display:block;text-align:left;border-radius:8px;padding:2px 5px;background:rgba(10,122,255,.13);overflow:hidden;min-width:0}
+.ev small{display:block;font-size:10px;font-weight:600;opacity:.75;white-space:nowrap;letter-spacing:-.01em}
+.ev b{display:block;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev.b{background:rgba(142,142,147,.2)}.ev.dn{opacity:.55}
+.cal .d.sel .ev{background:rgba(255,255,255,.26);color:#fff}
+.mas{font-size:10px;font-weight:600;opacity:.65;text-align:left;padding-left:4px}
+.wk{display:flex;flex-direction:column;gap:6px}
+.wd{display:flex;gap:12px;align-items:flex-start;text-align:left;padding:10px 12px;border-radius:16px;width:100%}
+.wd:hover{background:var(--fill)}
+.wd.sel{background:rgba(10,122,255,.12);box-shadow:inset 0 0 0 1.5px var(--azul)}
+.wd .wn{display:flex;flex-direction:column;align-items:center;min-width:38px}
+.wd .wn small{font-size:11px;font-weight:600;color:var(--tinta2);text-transform:uppercase}
+.wd .wn b{font-size:20px;font-weight:700}
+.wd.hoy .wn b{color:var(--azul)}
+.wl{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
+.wi{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;background:rgba(10,122,255,.12);border-radius:10px;padding:5px 9px}
+.wi i{font-style:normal;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;opacity:.75}
+.wi b{font-size:14px;font-weight:600}
+.wi em{font-style:normal;font-size:12px;opacity:.6}
+.wi.b{background:rgba(142,142,147,.2)}.wi.dn{opacity:.55}
+.wi.libre{background:none;color:var(--tinta2);padding:5px 0;font-size:13px}
+@media(max-width:900px){
+ .cal{gap:3px}
+ .cal .d.big{min-height:78px;padding:4px 2px;border-radius:10px}
+ .cal .d.big>span:first-child{font-size:13px;padding-left:2px}
+ .ev{padding:1px 3px;border-radius:6px}
+ .ev small{font-size:9px}
+ .ev b{font-size:9.5px;font-weight:600}
+ .mas{font-size:9px;padding-left:2px}
+}
+.cal{grid-template-columns:repeat(7,minmax(0,1fr))}
+.cal .d.big.vac{min-height:62px}
+.cal .d.out{min-height:0}
+.card{min-width:0}
+@media(max-width:900px){.cal .d.big.vac{min-height:50px}}
+@media(min-width:901px){.agx{grid-template-columns:minmax(0,2.2fr) minmax(0,1fr)}}
+.cal .d{width:100%}
+@media(max-width:900px){.ev small .e{display:none}}
 </style>
 </head>
 <body>
@@ -1834,6 +1878,47 @@ guardarCita=function(){
  if(confirm(`${nuevas.length>1?'Estas citas ya pasaron':'Esa cita ya pasó'}. ¿Se ${nuevas.length>1?'realizaron':'realizó'}?\n\nAceptar: se marca como realizada y se registra el cobro.\nCancelar: queda pendiente en «Hoy» para decidir después.`)){
   nuevas.forEach(c=>citaAct(c.id,'Completada'));toast('Registrada como realizada. Revisa el cobro y la nota en «Hoy»');
  }else toast('Queda pendiente en «Hoy» para cerrarla');
+};
+
+/* ================= CALENDARIO CON NOMBRES Y HORARIOS (mes / semana) ================= */
+let calVista='mes';try{calVista=localStorage.getItem('atrium-calvista')||'mes'}catch(e){}
+function rangoH(h,dur){
+ const a=h12(h),b=h12(hm(mn(h)+(+dur||50))),ia=a.indexOf(' '),ib=b.indexOf(' ');
+ return {s:a.slice(0,ia),e:b.slice(0,ib),ap:b.slice(ib+1),apS:a.slice(ia+1),full:a.slice(0,ia)+(a.slice(ia+1)==b.slice(ib+1)?'':' '+a.slice(ia+1))+' – '+b};
+}
+function evDia(f){
+ const c=activas(f).slice().sort(byHora).map(c=>({h:c.hora,dur:c.dur||50,t:primer(nom(c)),full:nom(c),tipo:c.tipo,done:c.estado=='Completada',b:false}));
+ const b=bloqDe(f).map(x=>x.todoDia?{h:'00:00',dur:0,t:x.titulo,full:x.titulo,todo:true,b:true}:{h:x.hora,dur:x.dur,t:x.titulo,full:x.titulo,b:true});
+ return c.concat(b).sort((x,y)=>(x.todo?-1:y.todo?1:x.h.localeCompare(y.h)));
+}
+function evChip(e){
+ if(e.todo)return `<span class="ev b"><small>Todo el día</small><b>${esc(e.t)}</b></span>`;
+ const r=rangoH(e.h,e.dur);
+ return `<span class="ev ${e.b?'b':''} ${e.done?'dn':''}"><small><span class="s">${r.apS==r.ap?r.s:r.s+r.apS[0]}</span><span class="e">${r.apS==r.ap?'–'+r.e:'–'+r.e+r.ap[0]}</span></small><b>${esc(e.t)}</b></span>`;
+}
+function calVistaSet(v){calVista=v;try{localStorage.setItem('atrium-calvista',v)}catch(e){}render()}
+function semIni(f){const d=fromISO(f);d.setDate(d.getDate()-((d.getDay()+6)%7));return d}
+function wkNav(n){const d=fromISO(selDate);d.setDate(d.getDate()+7*n);selDate=iso(d);calY=d.getFullYear();calM=d.getMonth();render()}
+function wkPick(f){selDate=f;document.querySelectorAll('.wk .wd').forEach(b=>b.classList.toggle('sel',b.dataset.d===f));$('#dayPanel').innerHTML=dayHTML(f);maskNames()}
+function calToggle(){return `<span class="vt"><button class="${calVista=='mes'?'on':''}" onclick="calVistaSet('mes')">Mes</button><button class="${calVista=='sem'?'on':''}" onclick="calVistaSet('sem')">Semana</button></span>`}
+vAgenda=function(){
+ const head=`<div class="head"><div><h1>Tu <b>agenda</b></h1><p class="sub">${MESL[calM].replace(/^./,x=>x.toUpperCase())} ${calY}</p></div><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" onclick="modal('bloq',selDate)">Bloquear horario</button><button class="btn" onclick="modal('cita')">＋ Nueva cita</button></span></div>`;
+ let cal;
+ if(calVista=='sem'){
+  const ini=semIni(selDate),fin=new Date(ini);fin.setDate(fin.getDate()+6);
+  const tit=ini.getDate()+(ini.getMonth()!=fin.getMonth()?' '+MES[ini.getMonth()]:'')+' – '+fin.getDate()+' '+MES[fin.getMonth()]+' '+fin.getFullYear();
+  let rows='';for(let i=0;i<7;i++){const d=new Date(ini);d.setDate(d.getDate()+i);const f=iso(d),ev=evDia(f);
+   rows+=`<button class="wd ${f==hoyISO()?'hoy':''} ${f==selDate?'sel':''}" data-d="${f}" onclick="wkPick('${f}')"><span class="wn"><small>${D3[d.getDay()]}</small><b>${d.getDate()}</b></span><span class="wl">${ev.length?ev.map(e=>{if(e.todo)return `<span class="wi b"><i>Todo el día</i><b>${esc(e.t)}</b></span>`;const r=rangoH(e.h,e.dur);return `<span class="wi ${e.b?'b':''} ${e.done?'dn':''}"><i>${r.full}</i><b>${esc(e.full)}</b>${!e.b&&e.tipo?`<em>${esc(e.tipo)}</em>`:''}</span>`}).join(''):'<span class="wi libre">Libre</span>'}</span></button>`}
+  cal=`<div class="cal-top"><span class="m" style="font-size:19px">${tit}</span><span class="arrows"><button onclick="calHoy()" style="width:auto;padding:0 14px;font-size:13px;font-weight:600">Hoy</button> <button onclick="wkNav(-1)">‹</button> <button onclick="wkNav(1)">›</button></span></div>${calToggle()}<div class="wk">${rows}</div>`;
+ }else{
+  const off=(new Date(calY,calM,1).getDay()+6)%7,dim=new Date(calY,calM+1,0).getDate();let cells='';
+  const dw=['L','M','M','J','V','S','D'].map(x=>`<div class="dw">${x}</div>`).join('');
+  for(let i=0;i<off;i++)cells+='<div class="d out"></div>';
+  for(let d=1;d<=dim;d++){const f=calY+'-'+pad(calM+1)+'-'+pad(d),ev=evDia(f),mx=3,mas=ev.length-mx;
+   cells+=`<button class="d big ${ev.length?'':'vac'} ${f==hoyISO()?'hoy':''} ${f==selDate?'sel':''}" data-d="${f}" onclick="pickDay('${f}')"><span>${d}</span><span class="evs">${ev.slice(0,mx).map(evChip).join('')}${mas>0?`<span class="mas">+${mas} más</span>`:''}</span></button>`}
+  cal=`<div class="cal-top"><span class="m">${MESL[calM]} ${calY}</span><span class="arrows"><button onclick="calHoy()" style="width:auto;padding:0 14px;font-size:13px;font-weight:600">Hoy</button> <button onclick="calNav(-1)">‹</button> <button onclick="calNav(1)">›</button></span></div>${calToggle()}<div class="cal">${dw}${cells}</div>`;
+ }
+ return `${head}<div class="grid2 agx"><div class="card">${cal}</div><div class="card" id="dayPanel">${dayHTML(selDate)}</div></div>`;
 };
 
 if(!DEMO){document.querySelector('.banner').remove();document.body.classList.add('real')}
